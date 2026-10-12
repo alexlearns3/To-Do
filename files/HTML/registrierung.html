@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registrierung</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="auth"><div class="authbox"><div class="authin">
+  <h1>Registrierung:</h1>
+  <p id="pend" class="hint hidden" style="color:#dfeee9">Nach der Registrierung trittst du dem eingeladenen Kalender bei.</p>
+  <label for="em">E-Mail:</label><input id="em" type="email" autocomplete="email">
+  <label for="pw">Passwort:</label><input id="pw" type="password" autocomplete="new-password">
+  <label for="nm">Name:</label><input id="nm" type="text" maxlength="20">
+  <div class="err" id="err" role="alert"></div>
+  <button class="btn" id="go">Registrieren</button>
+  <a class="link" href="anmeldung.html">Schon ein Konto? Anmelden</a>
+</div></div></div>
+<script src="js/common.js"></script>
+<script src="js/api.js"></script>
+<script src="js/registrierung.js"></script>
+</body>
+</html>
