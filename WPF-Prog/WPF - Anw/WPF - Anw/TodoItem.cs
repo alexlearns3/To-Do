@@ -9,7 +9,7 @@ namespace WPF___Anw_
     {
         private bool _erledigt;
 
-        public TodoItem(string titel, DateOnly datum, TimeOnly? uhrzeit)
+        public TodoItem(string titel, DateOnly datum, TimeOnly uhrzeit)
         {
             Titel = titel;
             Datum = datum;
@@ -18,7 +18,7 @@ namespace WPF___Anw_
 
         public string Titel { get; }
         public DateOnly Datum { get; }
-        public TimeOnly? Uhrzeit { get; }
+        public TimeOnly Uhrzeit { get; }
 
         public bool Erledigt
         {
@@ -32,11 +32,11 @@ namespace WPF___Anw_
         }
 
         // Zum Sortieren der Liste
-        public DateTime Zeitpunkt => Datum.ToDateTime(Uhrzeit ?? TimeOnly.MinValue);
+        public DateTime Zeitpunkt => Datum.ToDateTime(Uhrzeit);
 
         // Anzeige-Texte für die Oberfläche
         public string DatumText => Datum.ToString("dd.MM.yyyy");
-        public string TitelText => Uhrzeit is null ? Titel : $"{Titel} - {Uhrzeit:HH:mm}";
+        public string UhrzeitText => $"{Uhrzeit:HH:mm} Uhr";
 
         public event PropertyChangedEventHandler? PropertyChanged;
     }

@@ -5,76 +5,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPF___Anw_"
         mc:Ignorable="d"
-        Title="To-Do" Height="720" Width="560" MinHeight="520" MinWidth="440"
+        Title="To-Do" Height="840" Width="1440" MinHeight="680" MinWidth="1150"
         WindowStartupLocation="CenterScreen"
-        Background="#B3B3B3" FontFamily="Segoe UI">
+        Background="Black" FontFamily="Segoe UI">
 
     <Window.Resources>
 
-        <!-- Runde Checkbox wie im Figma-Design -->
-        <Style x:Key="RundeCheckBox" TargetType="CheckBox">
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="CheckBox">
-                        <Grid Width="28" Height="28" Background="Transparent">
-                            <Ellipse x:Name="Kreis" Stroke="#D9D9D9" StrokeThickness="2.5" Fill="White"/>
-                            <Path x:Name="Haken" Data="M 8,14 L 12,18 L 20,10"
-                                  Stroke="White" StrokeThickness="2.5"
-                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
-                                  Visibility="Collapsed"/>
-                        </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Kreis" Property="Stroke" Value="#A6A6A6"/>
-                            </Trigger>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Kreis" Property="Fill" Value="#4CAF50"/>
-                                <Setter TargetName="Kreis" Property="Stroke" Value="#4CAF50"/>
-                                <Setter TargetName="Haken" Property="Visibility" Value="Visible"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Großer, runder grauer Button ("Add Todo") -->
-        <Style x:Key="HauptButton" TargetType="Button">
-            <Setter Property="Background" Value="#EDEEF0"/>
-            <Setter Property="Foreground" Value="#222222"/>
-            <Setter Property="FontSize" Value="20"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Height" Value="60"/>
+        <!-- Button ohne Rahmen (Personen, "+", Löschen) -->
+        <Style x:Key="FlachButton" TargetType="Button">
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="Rahmen" Background="{TemplateBinding Background}" CornerRadius="16">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Rahmen" Property="Background" Value="#E2E3E6"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Rahmen" Property="Background" Value="#D5D6DA"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Kleiner "•••"-Button neben jedem Todo -->
-        <Style x:Key="MehrButton" TargetType="Button">
-            <Setter Property="Foreground" Value="#C4C4C4"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="Transparent" Padding="6,2">
+                        <Border Background="Transparent">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                     </ControlTemplate>
@@ -82,26 +25,113 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Foreground" Value="#808080"/>
+                    <Setter Property="Opacity" Value="0.75"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
-        <!-- Abgerundetes Eingabefeld mit Platzhaltertext (Text kommt aus Tag) -->
-        <Style x:Key="Eingabe" TargetType="TextBox">
+        <!-- Pfeile zum Blättern (Monat / Woche) -->
+        <Style x:Key="PfeilButton" TargetType="Button" BasedOn="{StaticResource FlachButton}">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="Transparent" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Tag im Mini-Kalender -->
+        <Style x:Key="TagButton" TargetType="Button">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Rahmen" Width="30" Height="30" CornerRadius="15"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="Transparent" BorderThickness="1">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Rahmen" Property="BorderBrush" Value="#777777"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Tages-Kopf in der Wochenansicht (MO 12, DI 13, ...) -->
+        <Style x:Key="TagKopf" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="5,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="22" Padding="0,10">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Opacity" Value="0.85"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Grüner Button ("+ Hinzufügen") -->
+        <Style x:Key="GruenerButton" TargetType="Button">
+            <Setter Property="Background" Value="#B9D84C"/>
+            <Setter Property="Foreground" Value="#1A1A1A"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Rahmen" Background="{TemplateBinding Background}" CornerRadius="14">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Rahmen" Property="Background" Value="#C8E46A"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Rahmen" Property="Background" Value="#A6C43C"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Dunkles Eingabefeld mit Platzhaltertext (Text kommt aus Tag) -->
+        <Style x:Key="DunklesEingabefeld" TargetType="TextBox">
             <Setter Property="FontSize" Value="15"/>
-            <Setter Property="Foreground" Value="#222222"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="CaretBrush" Value="White"/>
             <Setter Property="Height" Value="40"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
-                        <Border x:Name="Rahmen" Background="#F5F5F7" CornerRadius="10"
-                                BorderBrush="#E3E3E6" BorderThickness="1">
-                            <Grid Margin="12,0">
+                        <Border x:Name="Rahmen" Background="#444444" CornerRadius="10"
+                                BorderBrush="#555555" BorderThickness="1">
+                            <Grid Margin="10,0">
                                 <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center"/>
                                 <TextBlock x:Name="Platzhalter" Text="{TemplateBinding Tag}"
-                                           Foreground="#A0A0A0" Margin="2,0,0,0"
+                                           Foreground="#999999" Margin="2,0,0,0"
                                            VerticalAlignment="Center" IsHitTestVisible="False"
                                            Visibility="Collapsed"/>
                             </Grid>
@@ -111,7 +141,35 @@
                                 <Setter TargetName="Platzhalter" Property="Visibility" Value="Visible"/>
                             </Trigger>
                             <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="Rahmen" Property="BorderBrush" Value="#A6A6A6"/>
+                                <Setter TargetName="Rahmen" Property="BorderBrush" Value="#B9D84C"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Runde Checkbox für die dunkle To-Do-Liste -->
+        <Style x:Key="RundeCheckBox" TargetType="CheckBox">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Grid Width="24" Height="24" Background="Transparent">
+                            <Ellipse x:Name="Kreis" Stroke="#DDDDDD" StrokeThickness="2.5"/>
+                            <Path x:Name="Haken" Data="M 7,12 L 10.5,15.5 L 17,9"
+                                  Stroke="#1A1A1A" StrokeThickness="2.5"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                  Visibility="Collapsed"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Kreis" Property="Stroke" Value="#B9D84C"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Kreis" Property="Fill" Value="#B9D84C"/>
+                                <Setter TargetName="Kreis" Property="Stroke" Value="#B9D84C"/>
+                                <Setter TargetName="Haken" Property="Visibility" Value="Visible"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -121,98 +179,195 @@
 
     </Window.Resources>
 
-    <!-- Weiße Karte in der Mitte -->
-    <Border Background="White" CornerRadius="32" Padding="40,36"
-            Margin="40" MaxWidth="560">
-        <Border.Effect>
-            <DropShadowEffect BlurRadius="30" ShadowDepth="6" Direction="270" Opacity="0.15"/>
-        </Border.Effect>
+    <Grid Margin="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="120"/>
+            <ColumnDefinition Width="330"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-        <Grid>
+        <!-- ===== Links: Personen ===== -->
+        <Border Grid.Column="0" Background="#333333" CornerRadius="24" Padding="0,20" Margin="0,0,16,0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel HorizontalAlignment="Center">
+                    <ItemsControl x:Name="PersonenListe">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Style="{StaticResource FlachButton}" Margin="0,0,0,16"
+                                        ToolTip="{Binding Name}" Click="Person_Click">
+                                    <Grid Width="86" Height="86">
+                                        <!-- Roter Ring = ausgewählte Person -->
+                                        <Ellipse Stroke="#FF2B2B" StrokeThickness="4">
+                                            <Ellipse.Style>
+                                                <Style TargetType="Ellipse">
+                                                    <Setter Property="Visibility" Value="Hidden"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Ausgewaehlt}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Ellipse.Style>
+                                        </Ellipse>
+                                        <Ellipse Margin="7" Fill="{Binding Farbe}"/>
+                                        <TextBlock Text="{Binding Initiale}" FontSize="32" FontWeight="Bold"
+                                                   Foreground="#222222"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Grid>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Button Content="+" Style="{StaticResource FlachButton}"
+                            Foreground="White" FontSize="46" FontWeight="Bold"
+                            ToolTip="Person hinzufügen" Click="PersonHinzufuegen_Click"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <!-- ===== Mitte: Mini-Kalender + To-Do-Liste ===== -->
+        <Grid Grid.Column="1" Margin="0,0,16,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <TextBlock Grid.Row="0" Text="Todo" FontSize="30" FontWeight="SemiBold"
-                       Foreground="#222222" Margin="0,0,0,20"/>
+            <Border Grid.Row="0" Background="#333333" CornerRadius="24" Padding="14" Margin="0,0,0,16">
+                <Border Background="Black" CornerRadius="10" Padding="12,14">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,10">
+                            <Button Content="‹" Style="{StaticResource PfeilButton}"
+                                    HorizontalAlignment="Left" Click="MonatZurueck_Click"/>
+                            <TextBlock x:Name="MiniMonatTitel" Foreground="White" FontSize="17" FontWeight="Bold"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Button Content="›" Style="{StaticResource PfeilButton}"
+                                    HorizontalAlignment="Right" Click="MonatVor_Click"/>
+                        </Grid>
+                        <UniformGrid x:Name="MiniKalender" Columns="7"/>
+                    </StackPanel>
+                </Border>
+            </Border>
 
-            <!-- Liste der Todos -->
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                <ItemsControl x:Name="TodoListe">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate DataType="{x:Type local:TodoItem}">
-                            <Grid Margin="0,12">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
+            <Border Grid.Row="1" Background="#333333" CornerRadius="24" Padding="22,20">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                                <CheckBox Grid.Column="0" Style="{StaticResource RundeCheckBox}"
-                                          IsChecked="{Binding Erledigt}"
-                                          VerticalAlignment="Top" Margin="0,2,18,0"/>
+                    <TextBlock x:Name="TodoTitel" Grid.Row="0" Foreground="White" FontSize="24"
+                               FontWeight="SemiBold" Margin="0,0,0,16"/>
 
-                                <StackPanel Grid.Column="1">
-                                    <StackPanel.Style>
-                                        <Style TargetType="StackPanel">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Erledigt}" Value="True">
-                                                    <Setter Property="Opacity" Value="0.45"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </StackPanel.Style>
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl x:Name="TodoListe">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,0,0,18">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
 
-                                    <TextBlock Text="{Binding DatumText}" FontSize="18" Foreground="#333333"/>
-                                    <TextBlock Text="{Binding TitelText}" FontSize="18" Foreground="#333333"
-                                               TextWrapping="Wrap" Margin="0,4,0,0">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Erledigt}" Value="True">
-                                                        <Setter Property="TextDecorations" Value="Strikethrough"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </StackPanel>
+                                        <CheckBox Grid.Column="0" Style="{StaticResource RundeCheckBox}"
+                                                  IsChecked="{Binding Erledigt}"
+                                                  VerticalAlignment="Top" Margin="0,3,14,0"/>
 
-                                <Button Grid.Column="2" Content="•••" Style="{StaticResource MehrButton}"
-                                        VerticalAlignment="Top" Margin="8,2,0,0"
-                                        Click="MehrButton_Click">
-                                    <Button.ContextMenu>
-                                        <ContextMenu>
-                                            <MenuItem Header="Löschen" Click="Loeschen_Click"/>
-                                        </ContextMenu>
-                                    </Button.ContextMenu>
-                                </Button>
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
+                                        <StackPanel Grid.Column="1">
+                                            <StackPanel.Style>
+                                                <Style TargetType="StackPanel">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Erledigt}" Value="True">
+                                                            <Setter Property="Opacity" Value="0.45"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </StackPanel.Style>
 
-            <!-- Eingabe für ein neues Todo -->
-            <StackPanel Grid.Row="2" Margin="0,20,0,16">
-                <TextBox x:Name="TitelEingabe" Style="{StaticResource Eingabe}" Tag="Was ist zu tun?"/>
-                <Grid Margin="0,10,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="110"/>
-                    </Grid.ColumnDefinitions>
-                    <DatePicker x:Name="DatumAuswahl" Grid.Column="0" Height="40" FontSize="15"
-                                VerticalContentAlignment="Center" Margin="0,0,10,0"/>
-                    <TextBox x:Name="UhrzeitEingabe" Grid.Column="1" Style="{StaticResource Eingabe}"
-                             Tag="HH:mm"/>
+                                            <TextBlock Text="{Binding DatumText}" FontSize="19" FontWeight="Bold"
+                                                       Foreground="White"/>
+                                            <TextBlock Text="{Binding UhrzeitText}" FontSize="17"
+                                                       Foreground="#DDDDDD" Margin="0,2,0,0"/>
+                                            <TextBlock Text="{Binding Titel}" FontSize="17" Foreground="White"
+                                                       TextWrapping="Wrap" Margin="0,2,0,0">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Erledigt}" Value="True">
+                                                                <Setter Property="TextDecorations" Value="Strikethrough"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </StackPanel>
+
+                                        <Button Grid.Column="2" Content="✕" Style="{StaticResource FlachButton}"
+                                                Foreground="#888888" FontSize="14" VerticalAlignment="Top"
+                                                Margin="8,4,0,0" ToolTip="Löschen" Click="Loeschen_Click"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <!-- Neues To-Do (Datum = im Kalender ausgewählter Tag) -->
+                    <StackPanel Grid.Row="2" Margin="0,14,0,0">
+                        <TextBlock x:Name="NeuesDatumText" Foreground="#AAAAAA" FontSize="13" Margin="0,0,0,8"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="90"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="TitelEingabe" Grid.Column="0"
+                                     Style="{StaticResource DunklesEingabefeld}" Tag="Was ist zu tun?"/>
+                            <TextBox x:Name="UhrzeitEingabe" Grid.Column="1" Margin="8,0,0,0"
+                                     Style="{StaticResource DunklesEingabefeld}" Tag="HH:mm"/>
+                        </Grid>
+                        <Button Content="+ Hinzufügen" Style="{StaticResource GruenerButton}" Margin="0,10,0,0"
+                                IsDefault="True" Click="TodoHinzufuegen_Click"/>
+                    </StackPanel>
                 </Grid>
-            </StackPanel>
-
-            <Button Grid.Row="3" Content="Add Todo" Style="{StaticResource HauptButton}"
-                    IsDefault="True" Click="AddTodo_Click"/>
+            </Border>
         </Grid>
-    </Border>
+
+        <!-- ===== Rechts: Wochenansicht ===== -->
+        <Border Grid.Column="2" CornerRadius="28" Padding="28,18,28,28">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#E4FA86" Offset="0"/>
+                    <GradientStop Color="#BEEBE4" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <DockPanel Grid.Row="0" Margin="0,0,0,12">
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Content="‹" Style="{StaticResource PfeilButton}" Foreground="Black" FontSize="36"
+                                ToolTip="Vorherige Woche" Click="WocheZurueck_Click"/>
+                        <Button Content="›" Style="{StaticResource PfeilButton}" Foreground="Black" FontSize="36"
+                                ToolTip="Nächste Woche" Click="WocheVor_Click"/>
+                    </StackPanel>
+                    <TextBlock x:Name="WochenTitel" FontSize="46" FontWeight="Bold" Foreground="Black"/>
+                </DockPanel>
+
+                <!-- Links 60 = Spalte für die Uhrzeiten, rechts Platz für die Scrollleiste -->
+                <UniformGrid x:Name="TagesKoepfe" Grid.Row="1" Columns="7" Margin="60,0,23,14"/>
+
+                <Border Grid.Row="2" Background="#F2FFFFFF" CornerRadius="24" Padding="0,14,6,14">
+                    <ScrollViewer x:Name="WochenScroll" VerticalScrollBarVisibility="Visible">
+                        <Grid x:Name="WochenRaster"/>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
 </Window>
