@@ -1,0 +1,232 @@
+:root{--bg:#000;--panel:#333;--ink:#fff;--g1:#e6ff7a;--g2:#b4eee0;--chip:#b8cf94;--grid:#e6e8e2;--paper:#fbfdf8;--text:#111;--accent:#b9dc3f}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#000}}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,sans-serif;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+.hidden{display:none!important}
+button,input{font:inherit}
+/* Auth */
+#auth{min-height:100%;display:flex;align-items:center;justify-content:center;padding:16px}
+.authbox{background:linear-gradient(90deg,var(--g1),var(--g2));padding:14px;border-radius:14px;width:min(420px,100%)}
+.authin{background:#555a55;background:linear-gradient(135deg,#4e4e48,#586561);border-radius:12px;padding:22px 20px}
+.authin h1{margin:0 0 18px;color:var(--g2);font-size:26px}
+.authin label{display:block;font-size:20px;color:#e8f4f0;margin-top:10px}
+.authin input{width:100%;height:34px;border:0;border-radius:8px;background:#d9d9d9;padding:0 10px;margin-top:3px;color:#111}
+.authin input:focus,button:focus-visible{outline:3px solid var(--g1)}
+.btn{margin-top:18px;width:100%;height:40px;border:0;border-radius:10px;background:var(--g2);color:#12302a;font-weight:700;cursor:pointer}
+.link{background:none;border:0;color:var(--g2);margin-top:12px;cursor:pointer;text-decoration:underline;padding:0}
+.err{color:#ffb3a8;min-height:20px;margin-top:8px;font-size:14px}
+/* App */
+#app{height:100%;display:flex;gap:8px;padding:8px}
+#side{width:56px;background:var(--panel);border-radius:10px;padding:10px 0;display:flex;flex-direction:column;align-items:center;gap:10px;flex:none}
+.av{width:38px;height:38px;border-radius:50%;border:3px solid transparent;display:grid;place-items:center;font-weight:700;color:#222;cursor:pointer;padding:0}
+.av.on{border-color:#f22}
+#add{background:none;border:0;color:#fff;font-size:28px;cursor:pointer;line-height:1}
+#mid{width:210px;flex:none;display:flex;flex-direction:column;gap:8px;min-height:0}
+.mini{background:#000;border:4px solid var(--panel);border-radius:10px;padding:8px;font-size:10px}
+.mini h4{margin:2px 0 6px;text-align:center;letter-spacing:.08em;font-size:10px}
+.mg{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;gap:2px}
+.mg span{padding:2px 0;border-radius:4px}.mg .h{color:#f55}.mg .t{background:#fff;color:#000}.mg .d{box-shadow:inset 0 -2px var(--g1)}
+.todo{background:var(--panel);border-radius:10px;padding:12px;flex:1;overflow:auto;font-size:13px;min-height:0}
+.todo h3{margin:0 0 8px;font-size:14px}
+.ti{display:flex;justify-content:space-between;gap:6px;margin-bottom:10px;line-height:1.35}
+.ti b{display:block;font-weight:600}
+.x{background:none;border:0;color:#bbb;cursor:pointer;font-size:16px;align-self:flex-start}
+.addbtn{width:100%;height:34px;border:0;border-radius:8px;background:var(--g2);color:#12302a;font-weight:700;cursor:pointer;margin-bottom:12px}
+#main{flex:1;min-width:0;border-radius:10px;padding:14px;background:linear-gradient(135deg,var(--g1),var(--g2));color:var(--text);display:flex;flex-direction:column}
+.top{display:flex;align-items:center;gap:10px}
+.top h2{margin:0;font-size:22px;flex:1}
+.nav{border:0;background:rgba(0,0,0,.12);border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:16px}
+.out{border:0;background:rgba(0,0,0,.12);border-radius:8px;height:32px;padding:0 10px;cursor:pointer}
+.days{display:grid;grid-template-columns:44px repeat(7,1fr);gap:8px;margin:10px 0 8px}
+.dh{background:var(--chip);border-radius:10px;text-align:center;padding:5px 0;font-size:13px;line-height:1.2}
+.dh b{display:block;font-size:14px}.dh.today{outline:3px solid #fff}
+.scroll{flex:1;overflow:auto;background:var(--paper);border-radius:10px;position:relative;min-height:0}
+.cal{display:grid;grid-template-columns:44px repeat(7,1fr);position:relative;height:calc(17*48px)}
+.hrs div{height:48px;font-size:10px;color:#888;text-align:right;padding-right:6px;border-top:1px solid var(--grid)}
+.col{position:relative;border-left:1px solid var(--grid);background:repeating-linear-gradient(#0000 0 47px,var(--grid) 47px 48px)}
+.ev{position:absolute;left:3px;right:3px;height:40px;border-radius:9px;padding:4px 6px;font-size:11px;font-weight:700;overflow:hidden;color:#111;line-height:1.2}
+/* Modal */
+#modal{position:fixed;inset:0;background:#000a;display:grid;place-items:center;padding:16px;z-index:5}
+.mbox{background:linear-gradient(135deg,#4e4e48,#586561);border:3px solid var(--g2);border-radius:14px;padding:20px;width:min(360px,100%)}
+.mbox h3{margin:0 0 6px;color:var(--g2);font-size:22px}
+.mbox label{display:block;margin-top:10px}
+.mbox input{width:100%;height:34px;border:0;border-radius:8px;background:#d9d9d9;padding:0 10px;margin-top:3px;color:#111}
+.row{display:flex;gap:8px;margin-top:16px}.row .btn{margin:0}.row .sec{background:#777;color:#fff}
+@media(max-width:760px){#app{flex-direction:column;overflow:auto;height:auto;min-height:100%}#side{width:auto;flex-direction:row;padding:8px 12px}#mid{width:auto}#main{min-height:520px}.cal,.days{grid-template-columns:34px repeat(7,minmax(54px,1fr))}.scroll,.days{overflow-x:auto}}
+<script>
+/* =====================================================================
+   DATENSCHICHT – hier später SQLite / Server-API einsetzen.
+   Die App ruft NUR diese Funktionen auf. Aktuell speichert sie im
+   localStorage, damit die Datei per Doppelklick läuft.
+   Später: jede Funktion durch fetch('/api/...') ersetzen.
+   ===================================================================== */
+const api={
+  _r:k=>{try{return JSON.parse(localStorage.getItem(k))||[]}catch(e){return[]}},
+  _w:(k,v)=>localStorage.setItem(k,JSON.stringify(v)),
+  // users: {id, email, name, salt, hash, calId}      (SQL: Tabelle users)
+  async getUser(id){return api._r('wp_users').find(u=>u.id===id)||null},
+  async createUser(u){const a=api._r('wp_users');a.push(u);api._w('wp_users',a)},
+  async setCalendar(id,calId){const a=api._r('wp_users'),u=a.find(x=>x.id===id);if(u)u.calId=calId;api._w('wp_users',a)},
+  async calendarExists(c){return api._r('wp_users').some(u=>u.calId===c)},
+  async listMembers(c){return api._r('wp_users').filter(u=>u.calId===c).map(u=>({id:u.id,name:u.name}))},
+  // events: {id, calId, uid, title, date, time}      (SQL: Tabelle events)
+  async listEvents(c){return api._r('wp_events').filter(e=>e.calId===c)},
+  async addEvent(e){const a=api._r('wp_events');e.id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);a.push(e);api._w('wp_events',a)},
+  async deleteEvent(id,uid){api._w('wp_events',api._r('wp_events').filter(e=>!(e.id===id&&e.uid===uid)))}
+};
+/* ===================================================================== */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const COLORS=['#b9b9ff','#aee8b8','#f7c6a0','#b7dc3f','#f3a8c8','#9fdcf0'];
+const MONTHS=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+const DAYS=['MO','DI','MI','DO','FR','SA','SO'];
+let me=null,members=[],events=[],sel=null,pending=null,mode='login',weekStart=monday(new Date());
+const lsGet=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}};
+const lsSet=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+function toast(t){const e=$('toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display='none',4000)}
+// ---- Passwort-Hash (PBKDF2-SHA256 + Salt). Mit Server: dort hashen (z.B. bcrypt/argon2)! ----
+const hex=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+const rand=n=>hex(crypto.getRandomValues(new Uint8Array(n)));
+async function hash(pw,saltHex){
+  const salt=Uint8Array.from(saltHex.match(/../g).map(h=>parseInt(h,16)));
+  const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveBits']);
+  return hex(await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:150000,hash:'SHA-256'},key,256));
+}
+const idOf=async e=>hex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(e)));
+function monday(d){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return x}
+const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const fmtDE=s=>{const[y,m,d]=s.split('-');return `${+d}. ${+m}. ${y}`};
+const color=id=>COLORS[[...id].reduce((a,c)=>a+c.charCodeAt(0),0)%COLORS.length];
+const nameOf=id=>(members.find(m=>m.id===id)||{name:'?'}).name;
+// ---- Start ----
+async function init(){
+  const m=(location.hash+location.search).match(/join=([a-f0-9]+)/);pending=m?m[1]:null;
+  const s=lsGet('wp_sess');
+  if(s&&s.id){const u=await api.getUser(s.id);if(u){startSession(u);return}}
+  showAuth();
+}
+async function startSession(u){
+  me={id:u.id,email:u.email,name:u.name,calId:u.calId};lsSet('wp_sess',{id:u.id});sel=null;
+  $('auth').classList.add('hidden');$('app').classList.remove('hidden');
+  if(pending&&pending!==me.calId){const c=pending;pending=null;await joinCal(c)}
+  await reload();
+}
+async function reload(){
+  if(!me)return;
+  [members,events]=await Promise.all([api.listMembers(me.calId),api.listEvents(me.calId)]);
+  if(sel&&!members.some(m=>m.id===sel))sel=null;
+  render();
+}
+window.addEventListener('storage',()=>reload());   // andere Tabs aktualisieren
+async function joinCal(code){
+  code=(code||'').trim().toLowerCase();
+  if(!await api.calendarExists(code))return toast('Dieser Beitrittscode ist ungültig.');
+  await api.setCalendar(me.id,code);me.calId=code;sel=null;
+  $('modal').classList.add('hidden');await reload();toast('Du bist dem Kalender beigetreten.');
+}
+// ---- Anmeldung / Registrierung ----
+function showAuth(){
+  $('app').classList.add('hidden');$('auth').classList.remove('hidden');
+  const reg=mode==='register';
+  $('auth').innerHTML=`<div class="authbox"><div class="authin"><h1>${reg?'Registrierung':'Anmeldung'}:</h1>
+  ${pending?'<p class="hint" style="color:#dfeee9">Nach dem Anmelden trittst du dem eingeladenen Kalender bei.</p>':''}
+  <label for="em">E-Mail:</label><input id="em" type="email" autocomplete="email">
+  <label for="pw">Passwort:</label><input id="pw" type="password" autocomplete="${reg?'new-password':'current-password'}">
+  ${reg?'<label for="nm">Name:</label><input id="nm" type="text" maxlength="20">':''}
+  <div class="err" id="err" role="alert"></div>
+  <button class="btn" id="go">${reg?'Registrieren':'Anmelden'}</button>
+  <button class="link" id="sw">${reg?'Schon ein Konto? Anmelden':'Noch kein Konto? Registrieren'}</button></div></div>`;
+  $('sw').onclick=()=>{mode=reg?'login':'register';showAuth()};
+  $('go').onclick=submitAuth;
+  $('auth').onkeydown=e=>{if(e.key==='Enter')submitAuth()};
+}
+async function submitAuth(){
+  const err=t=>$('err').textContent=t,btn=$('go');
+  const email=$('em').value.trim().toLowerCase(),pw=$('pw').value;
+  if(!/^\S+@\S+\.\S+$/.test(email))return err('Bitte eine gültige E-Mail eingeben.');
+  btn.disabled=true;
+  try{
+    const id=await idOf(email),old=await api.getUser(id);
+    if(mode==='register'){
+      const name=$('nm').value.trim();
+      if(pw.length<6)return err('Das Passwort braucht mindestens 6 Zeichen.');
+      if(!name)return err('Bitte einen Namen eingeben.');
+      if(old)return err('Diese E-Mail ist schon registriert.');
+      const salt=rand(16),calId=(pending&&await api.calendarExists(pending))?pending:rand(8);
+      if(calId===pending)pending=null;
+      const u={id,email,name,salt,hash:await hash(pw,salt),calId};
+      await api.createUser(u);await startSession(u);
+    }else{
+      if(!old||await hash(pw,old.salt)!==old.hash)return err('E-Mail oder Passwort ist falsch.');
+      await startSession(old);
+    }
+  }catch(e){err('Fehler: '+(e.message||e))}
+  finally{btn.disabled=false}
+}
+// ---- Ansicht ----
+function render(){
+  if(!me)return;
+  const shown=sel?events.filter(x=>x.uid===sel):events,todayS=ymd(new Date()),viewId=sel||me.id;
+  $('side').innerHTML=members.map(m=>`<button class="av ${m.id===sel?'on':''}" data-id="${m.id}" title="${esc(m.name)}${m.id===me.id?' (du)':''}" style="background:${color(m.id)}">${esc(m.name[0].toUpperCase())}</button>`).join('')+'<button id="add" title="Leute einladen" aria-label="Leute einladen">+</button>';
+  document.querySelectorAll('.av').forEach(b=>b.onclick=()=>{sel=sel===b.dataset.id?null:b.dataset.id;render()});
+  $('add').onclick=openInvite;
+  const end=new Date(weekStart);end.setDate(end.getDate()+6);
+  $('title').textContent=MONTHS[weekStart.getMonth()]+' '+weekStart.getFullYear()+(end.getMonth()!==weekStart.getMonth()?' / '+MONTHS[end.getMonth()]:'');
+  const dates=[...Array(7)].map((_,i)=>{const d=new Date(weekStart);d.setDate(d.getDate()+i);return d});
+  $('days').innerHTML='<div></div>'+dates.map((d,i)=>`<div class="dh ${ymd(d)===todayS?'today':''}">${DAYS[i]}<b>${d.getDate()}</b></div>`).join('');
+  let h='<div class="hrs">'+[...Array(17)].map((_,i)=>`<div>${i+6}:00</div>`).join('')+'</div>';
+  dates.forEach(d=>{
+    const ev=shown.filter(x=>x.date===ymd(d)),grp={};ev.forEach(x=>(grp[x.time]=grp[x.time]||[]).push(x));
+    h+='<div class="col">'+ev.map(x=>{
+      const g=grp[x.time],i=g.indexOf(x),w=100/g.length,[hh,mm]=x.time.split(':').map(Number),top=Math.max(0,(hh-6+mm/60)*48)+2;
+      return `<div class="ev" style="top:${top}px;left:calc(${i*w}% + 3px);width:calc(${w}% - 6px);right:auto;background:${color(x.uid)}" title="${esc(x.title)}">${esc(nameOf(x.uid))}:<br>${esc(x.title)}</div>`}).join('')+'</div>'});
+  $('cal').innerHTML=h;
+  if(!render.done){$('scroll').scrollTop=96;render.done=1}
+  const m=weekStart.getMonth(),y=weekStart.getFullYear(),first=(new Date(y,m,1).getDay()+6)%7,n=new Date(y,m+1,0).getDate();
+  let mg=DAYS.map(d=>`<span class="h">${d[0]}</span>`).join('')+'<span></span>'.repeat(first);
+  for(let d=1;d<=n;d++){const s=ymd(new Date(y,m,d));mg+=`<span class="${s===todayS?'t':shown.some(x=>x.date===s)?'d':''}">${d}</span>`}
+  $('mini').innerHTML=`<h4>${MONTHS[m].toUpperCase()} ${y}</h4><div class="mg">${mg}</div>`;
+  const list=events.filter(x=>x.uid===viewId).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+  $('todo').innerHTML=`<button class="addbtn" id="addtodo">+ Hinzufügen</button><h3>${esc(nameOf(viewId))} TO-DO:</h3>`+
+    (list.map(x=>`<div class="ti"><div><b>${fmtDE(x.date)}</b>${esc(x.time)} Uhr<br>${esc(x.title)}</div>${x.uid===me.id?`<button class="x" data-id="${x.id}" aria-label="Löschen">✕</button>`:''}</div>`).join('')||'<span style="color:#bbb">Noch nichts geplant.</span>');
+  $('addtodo').onclick=openModal;
+  document.querySelectorAll('.x').forEach(b=>b.onclick=async()=>{await api.deleteEvent(b.dataset.id,me.id);reload()});
+}
+function modal(html){const mo=$('modal');mo.classList.remove('hidden');mo.innerHTML=`<div class="mbox" role="dialog" aria-modal="true">${html}</div>`;mo.onkeydown=e=>{if(e.key==='Escape')mo.classList.add('hidden')};mo.onclick=e=>{if(e.target===mo)mo.classList.add('hidden')}}
+function openModal(){
+  modal(`<h3>Neues To-do</h3><label for="t">Bezeichnung</label><input id="t" maxlength="60">
+  <label for="d">Datum</label><input id="d" type="date" value="${ymd(new Date())}">
+  <label for="ti">Uhrzeit</label><input id="ti" type="time" value="12:00">
+  <div class="err" id="merr" role="alert"></div>
+  <div class="row"><button class="btn sec" id="c">Abbrechen</button><button class="btn" id="s">Speichern</button></div>`);
+  $('t').focus();$('c').onclick=()=>$('modal').classList.add('hidden');
+  $('s').onclick=async()=>{
+    const title=$('t').value.trim(),date=$('d').value,time=$('ti').value;
+    if(!title||!date||!time)return $('merr').textContent='Bitte Bezeichnung, Datum und Uhrzeit ausfüllen.';
+    await api.addEvent({calId:me.calId,uid:me.id,title,date,time});
+    weekStart=monday(new Date(date+'T12:00'));$('modal').classList.add('hidden');reload();
+  };
+}
+function openInvite(){
+  const link=location.href.split('#')[0].split('?')[0]+'#join='+me.calId;
+  modal(`<h3>Leute einladen</h3><p>Schick diesen Link. Wer ihn öffnet und sich anmeldet, tritt deinem Kalender bei.</p>
+  <input id="lk" readonly value="${esc(link)}" aria-label="Beitrittslink"><div class="row"><button class="btn" id="cp">Link kopieren</button></div>
+  <p>Oder gib diesen Code ein: <span class="code">${esc(me.calId)}</span></p>
+  <div class="sep"></div><label for="jc">Anderem Kalender beitreten (Code)</label><input id="jc">
+  <div class="row"><button class="btn sec" id="c">Schließen</button><button class="btn" id="j">Beitreten</button></div>`);
+  $('lk').onfocus=e=>e.target.select();
+  $('cp').onclick=async()=>{try{await navigator.clipboard.writeText(link);toast('Link kopiert.')}catch(e){$('lk').select();toast('Bitte mit Strg+C kopieren.')}};
+  $('c').onclick=()=>$('modal').classList.add('hidden');
+  $('j').onclick=()=>joinCal($('jc').value);
+}
+$('prev').onclick=()=>{weekStart.setDate(weekStart.getDate()-7);render()};
+$('next').onclick=()=>{weekStart.setDate(weekStart.getDate()+7);render()};
+$('out').onclick=()=>{me=null;members=[];events=[];lsSet('wp_sess',null);mode='login';showAuth()};
+init();
+</script>
+</body>
+</html>
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:10px;z-index:9;display:none;max-width:90%}
+a.link{display:block;text-align:center;margin-top:12px;color:var(--g2)}
+#app{height:100vh}
