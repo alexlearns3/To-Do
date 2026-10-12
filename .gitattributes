@@ -1,0 +1,11 @@
+# Zeilenenden automatisch vereinheitlichen (Mac/Linux: LF, Windows: CRLF -> im Repo immer LF)
+* text=auto eol=lf
+
+# Binärdateien nie verändern
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.fig binary
