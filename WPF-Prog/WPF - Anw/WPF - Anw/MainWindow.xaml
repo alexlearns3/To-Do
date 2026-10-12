@@ -5,8 +5,214 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPF___Anw_"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="To-Do" Height="720" Width="560" MinHeight="520" MinWidth="440"
+        WindowStartupLocation="CenterScreen"
+        Background="#B3B3B3" FontFamily="Segoe UI">
 
-    </Grid>
+    <Window.Resources>
+
+        <!-- Runde Checkbox wie im Figma-Design -->
+        <Style x:Key="RundeCheckBox" TargetType="CheckBox">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Grid Width="28" Height="28" Background="Transparent">
+                            <Ellipse x:Name="Kreis" Stroke="#D9D9D9" StrokeThickness="2.5" Fill="White"/>
+                            <Path x:Name="Haken" Data="M 8,14 L 12,18 L 20,10"
+                                  Stroke="White" StrokeThickness="2.5"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                  Visibility="Collapsed"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Kreis" Property="Stroke" Value="#A6A6A6"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Kreis" Property="Fill" Value="#4CAF50"/>
+                                <Setter TargetName="Kreis" Property="Stroke" Value="#4CAF50"/>
+                                <Setter TargetName="Haken" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Großer, runder grauer Button ("Add Todo") -->
+        <Style x:Key="HauptButton" TargetType="Button">
+            <Setter Property="Background" Value="#EDEEF0"/>
+            <Setter Property="Foreground" Value="#222222"/>
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Height" Value="60"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Rahmen" Background="{TemplateBinding Background}" CornerRadius="16">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Rahmen" Property="Background" Value="#E2E3E6"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Rahmen" Property="Background" Value="#D5D6DA"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Kleiner "•••"-Button neben jedem Todo -->
+        <Style x:Key="MehrButton" TargetType="Button">
+            <Setter Property="Foreground" Value="#C4C4C4"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="Transparent" Padding="6,2">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="#808080"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Abgerundetes Eingabefeld mit Platzhaltertext (Text kommt aus Tag) -->
+        <Style x:Key="Eingabe" TargetType="TextBox">
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Foreground" Value="#222222"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="Rahmen" Background="#F5F5F7" CornerRadius="10"
+                                BorderBrush="#E3E3E6" BorderThickness="1">
+                            <Grid Margin="12,0">
+                                <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="Platzhalter" Text="{TemplateBinding Tag}"
+                                           Foreground="#A0A0A0" Margin="2,0,0,0"
+                                           VerticalAlignment="Center" IsHitTestVisible="False"
+                                           Visibility="Collapsed"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Text" Value="">
+                                <Setter TargetName="Platzhalter" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Rahmen" Property="BorderBrush" Value="#A6A6A6"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+
+    <!-- Weiße Karte in der Mitte -->
+    <Border Background="White" CornerRadius="32" Padding="40,36"
+            Margin="40" MaxWidth="560">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="30" ShadowDepth="6" Direction="270" Opacity="0.15"/>
+        </Border.Effect>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Text="Todo" FontSize="30" FontWeight="SemiBold"
+                       Foreground="#222222" Margin="0,0,0,20"/>
+
+            <!-- Liste der Todos -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <ItemsControl x:Name="TodoListe">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type local:TodoItem}">
+                            <Grid Margin="0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <CheckBox Grid.Column="0" Style="{StaticResource RundeCheckBox}"
+                                          IsChecked="{Binding Erledigt}"
+                                          VerticalAlignment="Top" Margin="0,2,18,0"/>
+
+                                <StackPanel Grid.Column="1">
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Erledigt}" Value="True">
+                                                    <Setter Property="Opacity" Value="0.45"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+
+                                    <TextBlock Text="{Binding DatumText}" FontSize="18" Foreground="#333333"/>
+                                    <TextBlock Text="{Binding TitelText}" FontSize="18" Foreground="#333333"
+                                               TextWrapping="Wrap" Margin="0,4,0,0">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Erledigt}" Value="True">
+                                                        <Setter Property="TextDecorations" Value="Strikethrough"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <Button Grid.Column="2" Content="•••" Style="{StaticResource MehrButton}"
+                                        VerticalAlignment="Top" Margin="8,2,0,0"
+                                        Click="MehrButton_Click">
+                                    <Button.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Löschen" Click="Loeschen_Click"/>
+                                        </ContextMenu>
+                                    </Button.ContextMenu>
+                                </Button>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <!-- Eingabe für ein neues Todo -->
+            <StackPanel Grid.Row="2" Margin="0,20,0,16">
+                <TextBox x:Name="TitelEingabe" Style="{StaticResource Eingabe}" Tag="Was ist zu tun?"/>
+                <Grid Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="110"/>
+                    </Grid.ColumnDefinitions>
+                    <DatePicker x:Name="DatumAuswahl" Grid.Column="0" Height="40" FontSize="15"
+                                VerticalContentAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBox x:Name="UhrzeitEingabe" Grid.Column="1" Style="{StaticResource Eingabe}"
+                             Tag="HH:mm"/>
+                </Grid>
+            </StackPanel>
+
+            <Button Grid.Row="3" Content="Add Todo" Style="{StaticResource HauptButton}"
+                    IsDefault="True" Click="AddTodo_Click"/>
+        </Grid>
+    </Border>
 </Window>
