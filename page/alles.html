@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kalender</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;800&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="Style2.css">
+</head>
+<body>
+<div class="app" id="app">
+  <div class="side" id="side"></div>
+  <div class="mid">
+    <div class="mini"><b>OKTOBER 2026</b><table id="mini"></table></div>
+    <section class="todo" aria-label="To-Do">
+      <h2 id="todoTitle"></h2>
+      <ul id="list"></ul>
+      <button class="btn" id="open" type="button">+ Hinzufügen</button>
+      <div class="form" id="form" role="group" aria-label="Neues To-Do">
+        <label>Datum<input type="date" id="date"></label>
+        <label>Uhrzeit<input type="time" id="time"></label>
+        <label>Was möchtest du machen?<input type="text" id="what" maxlength="40" placeholder="z. B. Deutsch lernen"></label>
+        <div class="err" id="err" role="alert"></div>
+        <div class="btns"><button class="btn" id="save" type="button">Hinzufügen</button><button class="ghost" id="cancel" type="button">Abbrechen</button></div>
+      </div>
+    </section>
+  </div>
+  <section class="cal">
+    <h1>Oktober 2026</h1>
+    <div class="legend" id="legend"></div>
+    <div class="days" id="days"></div>
+    <div class="grid" id="grid"></div>
+  </section>
+</div>
+
+<div class="auth" id="auth" hidden>
+  <div class="frame">
+    <button class="close" id="closeAuth" type="button" aria-label="Schließen">×</button>
+    <form class="card" id="authForm" novalidate>
+      <h1 id="aTitle">Anmeldung</h1>
+      <p class="sub" id="aSub">Schön, dass du wieder da bist.</p>
+      <div id="nameRow" hidden><label for="aName">Name</label><input id="aName" autocomplete="name"></div>
+      <label for="aMail">E-Mail</label><input id="aMail" type="email" autocomplete="email">
+      <label for="aPw">Passwort</label><input id="aPw" type="password" autocomplete="current-password">
+      <div class="err" id="aErr" role="alert"></div>
+      <button class="btn" id="aGo" type="submit">Anmelden</button>
+      <p class="switch" id="aSwitch"></p>
+      <p class="hint" id="aHint">Zum Ausprobieren: tom@beispiel.at / tom123 oder mia@beispiel.at / mia123</p>
+    </form>
+  </div>
+</div>
+
+<script src="java.js"></script>
+</body>
+</html>
