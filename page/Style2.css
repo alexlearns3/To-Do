@@ -69,10 +69,20 @@ input{border:0;border-radius:8px;background:var(--field);color:#111;padding:9px 
 .card input{padding:12px 12px;font-size:15px;border-radius:10px}
 .card input:focus{outline:3px solid var(--lime)}
 .card .btn{width:100%;margin-top:20px;padding:13px;font-size:15px}
-.switch{margin:16px 0 0;text-align:center;font-size:13px;color:#cfd6cc}
-.switch button{background:none;border:0;color:var(--lime);font-weight:600;font-size:13px;text-decoration:underline;padding:0}
+.switch{margin:12px 0 0}
+.switch .btn2{display:block;text-align:center;text-decoration:none;width:100%;background:transparent;border:2px solid var(--lime);color:var(--lime);border-radius:10px;padding:12px;font-weight:600;font-size:15px;transition:background .15s}
+.switch .btn2:hover{background:rgba(220,250,110,.14)}
 .hint{margin-top:10px;font-size:11px;color:#9aa398;text-align:center}
 .close{position:absolute;top:-14px;right:-14px;width:36px;height:36px;border-radius:50%;border:0;background:#fff;color:#111;font-size:20px;line-height:1;box-shadow:0 4px 14px rgba(0,0,0,.4)}
 .card .err{margin-top:10px;font-size:13px}
+
+/* Registrierung: kompakter Look */
+.card.reg{padding:22px}
+.card.reg h1{font-size:22px;margin-bottom:10px}
+.card.reg label{font-size:13px;margin:8px 0 3px}
+.card.reg input{padding:7px 10px;font-size:13px;border-radius:8px;background:#d9d9d9}
+.card.reg .btn{margin-top:14px;padding:11px;font-size:14px}
+.card.reg .switch .btn2{padding:10px;font-size:14px}
+
 @media (max-width:760px){.app{grid-template-columns:52px 1fr}.cal{grid-column:1/-1}.mini{display:none}.grid{max-height:360px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}

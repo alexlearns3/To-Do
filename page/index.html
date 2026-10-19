@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="Style2.css">
 </head>
 <body>
-<div class="app" id="app">
+<div class="app" id="app" hidden>
   <div class="side" id="side"></div>
   <div class="mid">
     <div class="mini"><b>OKTOBER 2026</b><table id="mini"></table></div>
@@ -33,23 +33,28 @@
   </section>
 </div>
 
-<div class="auth" id="auth" hidden>
+<div class="auth" id="auth">
   <div class="frame">
     <button class="close" id="closeAuth" type="button" aria-label="Schließen">×</button>
     <form class="card" id="authForm" novalidate>
-      <h1 id="aTitle">Anmeldung</h1>
-      <p class="sub" id="aSub">Schön, dass du wieder da bist.</p>
-      <div id="nameRow" hidden><label for="aName">Name</label><input id="aName" autocomplete="name"></div>
-      <label for="aMail">E-Mail</label><input id="aMail" type="email" autocomplete="email">
-      <label for="aPw">Passwort</label><input id="aPw" type="password" autocomplete="current-password">
+      <h1>Anmeldung</h1>
+      <p class="sub">Schön, dass du wieder da bist.</p>
+
+      <label for="aMail">E-Mail</label>
+      <input id="aMail" type="email" autocomplete="email">
+
+      <label for="aPw">Passwort</label>
+      <input id="aPw" type="password" autocomplete="current-password">
+
       <div class="err" id="aErr" role="alert"></div>
-      <button class="btn" id="aGo" type="submit">Anmelden</button>
-      <p class="switch" id="aSwitch"></p>
-      <p class="hint" id="aHint">Zum Ausprobieren: tom@beispiel.at / tom123 oder mia@beispiel.at / mia123</p>
+      <button class="btn" type="submit">Anmelden</button>
+      <div class="switch"><a class="btn2" href="register.html">Registrieren</a></div>
+      <p class="hint">Zum Ausprobieren: tom@beispiel.at / tom123 oder mia@beispiel.at / mia123</p>
     </form>
   </div>
 </div>
 
+<script src="daten.js"></script>
 <script src="java.js"></script>
 </body>
 </html>
