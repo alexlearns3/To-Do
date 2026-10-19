@@ -5,8 +5,58 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:To_Do_App"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="To-Do-App" Height="550" Width="900" Background="Black">
 
+    <!-- 3 Spalten: links Personen, mitte To-Do-Liste, rechts Eingabe -->
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="180"></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition Width="250"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <!-- Links: Personen -->
+        <StackPanel Grid.Column="0" Background="#333333" Margin="5">
+            <TextBlock Text="Personen" FontSize="20" FontWeight="Bold"
+                       Foreground="White" Margin="10"/>
+
+            <ListBox x:Name="lstPersonen" FontSize="16" Margin="10"
+                     SelectionChanged="lstPersonen_SelectionChanged">
+                <ListBoxItem>Gesamt</ListBoxItem>
+                <ListBoxItem>Mia</ListBoxItem>
+                <ListBoxItem>Liana</ListBoxItem>
+                <ListBoxItem>Alex</ListBoxItem>
+                <ListBoxItem>Vogli</ListBoxItem>
+            </ListBox>
+        </StackPanel>
+
+        <!-- Mitte: To-Do-Liste -->
+        <StackPanel Grid.Column="1" Background="#DFF98A" Margin="5">
+            <TextBlock Text="Meine TO-DOs" FontSize="28" FontWeight="Bold" Margin="10"/>
+
+            <ListBox x:Name="lstTodos" FontSize="16" Height="400" Margin="10"/>
+        </StackPanel>
+
+        <!-- Rechts: Eingabe für ein To-Do -->
+        <StackPanel Grid.Column="2" Background="#333333" Margin="5">
+            <TextBlock Text="Neues To-Do" FontSize="20" FontWeight="Bold"
+                       Foreground="White" Margin="10"/>
+
+            <Label Content="Beschreibung:" Foreground="White" Margin="10,0,10,0"/>
+            <TextBox x:Name="tbBeschreibung" FontSize="14" Margin="10,0,10,10"/>
+
+            <Label Content="Datum (TT.MM.JJJJ):" Foreground="White" Margin="10,0,10,0"/>
+            <TextBox x:Name="tbDatum" FontSize="14" Margin="10,0,10,10"/>
+
+            <Label Content="Uhrzeit (HH:MM):" Foreground="White" Margin="10,0,10,0"/>
+            <TextBox x:Name="tbUhrzeit" FontSize="14" Margin="10,0,10,10"/>
+
+            <StackPanel Orientation="Horizontal" Margin="10">
+                <Button x:Name="btnHinzufuegen" Content="Hinzufügen" Width="105"
+                        Click="btnHinzufuegen_Click"/>
+                <Button x:Name="btnLoeschen" Content="Löschen" Width="105" Margin="10,0,0,0"
+                        Click="btnLoeschen_Click"/>
+            </StackPanel>
+        </StackPanel>
     </Grid>
 </Window>
