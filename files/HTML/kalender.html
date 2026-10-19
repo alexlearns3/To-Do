@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wochenplaner</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+  <aside id="side"></aside>
+  <section id="mid"><div class="mini" id="mini"></div><div class="todo" id="todo"></div></section>
+  <main id="main">
+    <div class="top">
+      <button class="nav" id="prev" aria-label="Vorherige Woche">‹</button>
+      <h2 id="title"></h2>
+      <button class="nav" id="next" aria-label="Nächste Woche">›</button>
+      <button class="out" id="out">Abmelden</button>
+    </div>
+    <div class="days" id="days"></div>
+    <div class="scroll" id="scroll"><div class="cal" id="cal"></div></div>
+  </main>
+</div>
+<div id="modal" class="hidden"></div>
+<div id="toast" class="toast" role="status"></div>
+<script src="js/common.js"></script>
+<script src="js/api.js"></script>
+<script src="js/kalender.js"></script>
+</body>
+</html>
