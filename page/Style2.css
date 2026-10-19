@@ -1,0 +1,78 @@
+:root{--bg:#000;--panel:#2a2a2a;--panel2:#363636;--ink:#fff;--mute:#b8b8b8;--dark:#14170c;--lime:#dcfa6e;--mint:#b5f2de;--day:#b6cf8e;--field:#e6e6e6;--red:#ff4d4d;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Inter","Segoe UI",system-ui,sans-serif;padding:16px;min-height:100vh}
+h1,h2,.brand{font-family:"Sora","Inter",system-ui,sans-serif}
+button{font-family:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--mint);outline-offset:2px}
+[hidden]{display:none!important}
+
+/* App */
+.app{display:grid;grid-template-columns:64px 230px 1fr;gap:12px;max-width:1040px;margin:0 auto}
+.side{background:var(--panel);border-radius:16px;padding:12px 0;display:flex;flex-direction:column;align-items:center;gap:12px}
+.av{width:40px;height:40px;border-radius:50%;border:3px solid transparent;color:#111;font:800 15px "Sora",sans-serif;display:grid;place-items:center;padding:0;transition:transform .15s}
+.av:hover{transform:scale(1.08)}
+.av.on{border-color:var(--red)}
+.plus{width:40px;height:40px;border-radius:50%;border:2px dashed #777;background:none;color:#fff;font-size:22px;line-height:1;transition:all .15s}
+.plus:hover{border-color:var(--lime);color:var(--lime)}
+.mid{display:flex;flex-direction:column;gap:12px;min-width:0}
+.mini{background:var(--panel);border-radius:16px;padding:12px}
+.mini b{display:block;text-align:center;font:600 11px "Sora",sans-serif;margin-bottom:6px;letter-spacing:.04em}
+.mini table{width:100%;border-collapse:collapse;text-align:center;font-size:10px}
+.mini td,.mini th{padding:3px 0;font-weight:400}
+.mini th{color:var(--mute)}
+.mini .we{color:var(--red)}
+.mini .on{background:var(--lime);color:#111;border-radius:50%;font-weight:700}
+.todo{background:var(--panel);border-radius:16px;padding:14px;flex:1;display:flex;flex-direction:column;gap:10px;font-size:13px}
+.todo h2{margin:0;font-size:14px}
+.todo ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;flex:1}
+.todo li{background:var(--panel2);border-radius:10px;padding:8px 10px;display:grid;grid-template-columns:1fr auto;gap:1px 6px}
+.todo li .d{font-weight:600;font-size:12px}
+.todo li .t,.todo li .w{grid-column:1;color:var(--mute)}
+.todo li .w{color:#fff}
+.todo li button{grid-row:1/4;grid-column:2;background:none;border:0;color:#999;font-size:18px;padding:0 4px}
+.todo li button:hover{color:var(--red)}
+.empty{color:var(--mute);font-size:12px;background:none!important;padding:0!important}
+.btn{background:var(--lime);color:var(--dark);border:0;border-radius:10px;padding:10px 12px;font-weight:600;font-size:13px;transition:filter .15s}
+.btn:hover{filter:brightness(.94)}
+.ghost{background:none;border:1px solid #666;color:#ddd;border-radius:10px;padding:10px 12px;font-size:13px}
+.form{display:none;flex-direction:column;gap:8px;background:var(--panel2);border-radius:12px;padding:12px}
+.form.open{display:flex}
+.form label{font-size:12px;display:flex;flex-direction:column;gap:4px;color:var(--mute)}
+input{border:0;border-radius:8px;background:var(--field);color:#111;padding:9px 10px;font:inherit;font-size:13px;width:100%}
+.btns{display:flex;gap:8px}.btns .btn{flex:1}
+.err{color:#ff9a9a;font-size:12px;min-height:15px}
+.cal{background:linear-gradient(135deg,#e4fc80,#fcfde6 45%,#bff4e7);border-radius:18px;padding:16px;color:#111;min-width:0;display:flex;flex-direction:column}
+.cal h1{margin:0 0 10px;font-size:22px;font-weight:800}
+.days,.grid{display:grid;grid-template-columns:42px repeat(7,1fr)}
+.days{gap:6px}
+.days div{background:var(--day);border-radius:12px;text-align:center;padding:7px 0;font-size:12px}
+.days b{display:block;font:800 15px "Sora",sans-serif}
+.grid{background:#fff;border-radius:10px;margin-top:10px;grid-auto-rows:46px;overflow:auto;max-height:440px;box-shadow:0 6px 24px rgba(60,80,0,.12)}
+.grid .h{font-size:10px;color:#888;padding:3px 6px;border-top:1px solid #eee}
+.grid .c{border-top:1px solid #eee;border-left:1px solid #eee;display:flex;gap:2px;padding:3px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+.chip{display:flex;align-items:center;gap:7px;border:0;border-radius:999px;padding:5px 12px 5px 6px;background:rgba(255,255,255,.65);color:#111;font-size:12px;font-weight:600;transition:opacity .15s}
+.chip i{width:18px;height:18px;border-radius:50%;display:block}
+.chip[aria-pressed=false]{opacity:.45}
+.chip[aria-pressed=false] i{background:transparent!important;border:2px solid #888}
+.ev{flex:1;min-width:0;color:#111;border-radius:8px;padding:4px 6px;font-size:10px;font-weight:600;line-height:1.25;overflow:hidden;box-shadow:0 2px 6px rgba(60,60,0,.22)}
+
+/* Auth */
+.auth{position:fixed;inset:0;background:#000;display:grid;place-items:center;padding:20px;z-index:20;overflow:auto}
+.frame{width:min(460px,100%);padding:22px;border-radius:26px;background:linear-gradient(135deg,#e4fc80,#d0f7a8 40%,#bff4e7);box-shadow:0 0 80px rgba(200,250,120,.18);position:relative}
+.card{background:rgba(40,44,38,.82);backdrop-filter:blur(6px);border-radius:18px;padding:28px 26px}
+.card h1{margin:0 0 4px;font-size:30px;font-weight:800;color:var(--mint)}
+.sub{margin:0 0 18px;color:#cfd6cc;font-size:13px}
+.card label{display:block;color:var(--mint);font-size:15px;margin:12px 0 5px}
+.card input{padding:12px 12px;font-size:15px;border-radius:10px}
+.card input:focus{outline:3px solid var(--lime)}
+.card .btn{width:100%;margin-top:20px;padding:13px;font-size:15px}
+.switch{margin:16px 0 0;text-align:center;font-size:13px;color:#cfd6cc}
+.switch button{background:none;border:0;color:var(--lime);font-weight:600;font-size:13px;text-decoration:underline;padding:0}
+.hint{margin-top:10px;font-size:11px;color:#9aa398;text-align:center}
+.close{position:absolute;top:-14px;right:-14px;width:36px;height:36px;border-radius:50%;border:0;background:#fff;color:#111;font-size:20px;line-height:1;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+.card .err{margin-top:10px;font-size:13px}
+@media (max-width:760px){.app{grid-template-columns:52px 1fr}.cal{grid-column:1/-1}.mini{display:none}.grid{max-height:360px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
