@@ -14,20 +14,38 @@ function parseIso(s){var p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2])}
 function addDays(d,n){var x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()+n);return x}
 function monday(d){return addDays(d,-((d.getDay()+6)%7))}
 
+/* Handy: 5 Tage, gewählter Tag in der Mitte. PC: ganze Woche ab Montag */
+var phoneMQ=window.matchMedia('(max-width:640px)');
+function N(){return phoneMQ.matches?5:7}
+function startFor(date){return phoneMQ.matches?addDays(date,-2):monday(date)}
+
 /* Was gerade angezeigt wird: startet immer bei heute */
-var weekStart=monday(new Date());
+var weekStart=startFor(new Date());
 var miniMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1);
 
 function goTo(date){
-  weekStart=monday(date);
+  weekStart=startFor(date);
   miniMonth=new Date(date.getFullYear(),date.getMonth(),1);
   show();
 }
+/* Vor/zurück um eine ganze Ansicht (5 bzw. 7 Tage) */
+function shift(dir){
+  weekStart=addDays(weekStart,dir*N());
+  var m=addDays(weekStart,Math.floor(N()/2));
+  miniMonth=new Date(m.getFullYear(),m.getMonth(),1);
+  show();
+}
+/* Beim Drehen/Größe ändern: Ansicht um den mittleren Tag neu aufbauen */
+phoneMQ.addEventListener('change',function(){
+  var mid=phoneMQ.matches?addDays(weekStart,3):addDays(weekStart,2);
+  var t=new Date();if(mid<=addDays(t,3)&&mid>=addDays(t,-3))mid=t;
+  goTo(mid);
+});
 function show(){mini();days();title();render()}
 function scrollNow(){$('grid').scrollTop=ROW*Math.max(0,new Date().getHours()-1)}
 
 function title(){
-  var a=weekStart,b=addDays(weekStart,6),s;
+  var a=weekStart,b=addDays(weekStart,N()-1),s;
   if(a.getMonth()===b.getMonth())s=MONTHS[a.getMonth()]+' '+a.getFullYear();
   else if(a.getFullYear()===b.getFullYear())s=MONTHS[a.getMonth()]+' – '+MONTHS[b.getMonth()]+' '+b.getFullYear();
   else s=MONTHS[a.getMonth()]+' '+a.getFullYear()+' – '+MONTHS[b.getMonth()]+' '+b.getFullYear();
@@ -42,7 +60,7 @@ function legend(){
 }
 function mini(){
   $('mTitle').textContent=MONTHS[miniMonth.getMonth()].toUpperCase()+' '+miniMonth.getFullYear();
-  var t=iso(new Date()),wS=iso(weekStart),wE=iso(addDays(weekStart,6));
+  var t=iso(new Date()),wS=iso(weekStart),wE=iso(addDays(weekStart,N()-1));
   var h='<tr>'+['M','D','M','D','F','S','S'].map(function(x,i){return '<th'+(i>4?' class="we"':'')+'>'+x+'</th>'}).join('')+'</tr>';
   var start=monday(miniMonth);
   for(var r=0;r<6;r++){
@@ -63,22 +81,25 @@ function mini(){
 }
 function days(){
   var t=iso(new Date());
-  $('days').innerHTML='<span></span>'+names.map(function(n,i){var d=addDays(weekStart,i);return '<div'+(iso(d)===t?' class="today"':'')+'>'+n+'<b>'+d.getDate()+'</b></div>'}).join('');
+  var h='<span></span>';
+  for(var i=0;i<N();i++){var d=addDays(weekStart,i);h+='<div'+(iso(d)===t?' class="today"':'')+'>'+names[(d.getDay()+6)%7]+'<b>'+d.getDate()+'</b></div>'}
+  $('days').innerHTML=h;
+  $('cal').style.setProperty('--n',N());
 }
 function render(){
   if(!session.length){$('list').innerHTML='';$('grid').innerHTML='';side();legend();return}
   var u=session[cur],td=u.todos;
   td.sort(function(a,b){return (a.d+a.t)<(b.d+b.t)?-1:1});
   $('todoTitle').textContent=u.name+' TO-DO:';
-  $('list').innerHTML=td.length?td.map(function(t,i){return '<li><span class="d">'+fmt(t.d)+'</span><button type="button" aria-label="Löschen" data-i="'+i+'">×</button><span class="t">'+t.t+' Uhr</span><span class="w">'+esc(t.w)+'</span></li>'}).join(''):'<li class="empty">Noch nichts geplant.</li>';
+  $('list').innerHTML=td.length?td.map(function(t,i){return '<li'+(t.done?' class="done"':'')+'><label class="chk"><input type="checkbox" data-c="'+i+'"'+(t.done?' checked':'')+' aria-label="Erledigt: '+esc(t.w)+'"><span></span></label><span class="d">'+fmt(t.d)+'</span><button type="button" class="del" aria-label="Löschen" data-i="'+i+'">×</button><span class="t">'+t.t+' Uhr</span><span class="w">'+esc(t.w)+'</span></li>'}).join(''):'<li class="empty">Noch nichts geplant.</li>';
   var h='',now=iso(new Date());
   hours.forEach(function(hr){
     h+='<div class="h">'+pad(hr)+':00</div>';
-    for(var i=0;i<7;i++){
+    for(var i=0;i<N();i++){
       var date=iso(addDays(weekStart,i));
       var ev=session.map(function(p){
         if(p.show===false)return '';
-        return p.todos.filter(function(t){return t.d===date&&parseInt(t.t,10)===hr}).map(function(t){return '<div class="ev" style="background:'+p.color+'">'+esc(p.name)+':<br>'+esc(t.w)+'</div>'}).join('');
+        return p.todos.filter(function(t){return t.d===date&&parseInt(t.t,10)===hr}).map(function(t){return '<div class="ev'+(t.done?' done':'')+'" style="background:'+p.color+'">'+esc(p.name)+':<br>'+esc(t.w)+'</div>'}).join('');
       }).join('');
       h+='<div class="c'+(date===now?' now':'')+'">'+ev+'</div>';
     }
@@ -120,19 +141,30 @@ function dbQuery(sql,args){
 }
 
 /* Todos: DB-Format "2026-10-20 10:00:00" <-> App-Format {d:'2026-10-20', t:'10:00', w:'...'} */
+/* Spalte "done" (0 = offen, 1 = erledigt) wird automatisch angelegt, falls sie fehlt */
 function loadTodos(userId){
-  return dbQuery('SELECT id, description, date FROM todos WHERE user_id = ? ORDER BY date',[userId])
+  var sql='SELECT id, description, date, done FROM todos WHERE user_id = ? ORDER BY date';
+  return dbQuery(sql,[userId])
+    .catch(function(ex){
+      if(!/no such column/i.test(ex.message))throw ex;
+      return dbQuery('ALTER TABLE todos ADD COLUMN done INTEGER NOT NULL DEFAULT 0')
+        .catch(function(e2){if(!/duplicate column/i.test(e2.message))throw e2})
+        .then(function(){return dbQuery(sql,[userId])});
+    })
     .then(function(rows){
       return rows.map(function(r){
         var dt=String(r.date).replace('T',' ');
-        return {id:+r.id,d:dt.slice(0,10),t:dt.slice(11,16),w:String(r.description)};
+        return {id:+r.id,d:dt.slice(0,10),t:dt.slice(11,16),w:String(r.description),done:+r.done===1};
       });
     });
 }
+function setDone(userId,todoId,done){
+  return dbQuery('UPDATE todos SET done = ? WHERE id = ? AND user_id = ?',[done?1:0,todoId,userId]);
+}
 function addTodo(userId,t){
-  return dbQuery('INSERT INTO todos (user_id, description, date) VALUES (?, ?, ?) RETURNING id',
+  return dbQuery('INSERT INTO todos (user_id, description, date, done) VALUES (?, ?, ?, 0) RETURNING id',
     [userId,t.w,t.d+' '+t.t+':00'])
-    .then(function(rows){t.id=+rows[0].id;return t});
+    .then(function(rows){t.id=+rows[0].id;t.done=false;return t});
 }
 function deleteTodo(userId,todoId){
   return dbQuery('DELETE FROM todos WHERE id = ? AND user_id = ?',[todoId,userId]);
@@ -183,9 +215,18 @@ $('list').onclick=function(e){
     })
     .catch(function(ex){console.error(ex);e.target.disabled=false;alert('Löschen fehlgeschlagen: '+ex.message)});
 };
+/* Abhaken: speichert done = 1 bzw. 0 in der Datenbank */
+$('list').addEventListener('change',function(e){
+  var c=e.target.getAttribute('data-c');if(c===null)return;
+  var box=e.target,u=session[cur],todo=u.todos[+c],val=box.checked;
+  box.disabled=true;
+  setDone(u.id,todo.id,val)
+    .then(function(){todo.done=val;render()})
+    .catch(function(ex){console.error(ex);box.checked=!val;box.disabled=false;alert('Speichern fehlgeschlagen: '+ex.message)});
+});
 /* Navigation */
-$('wPrev').onclick=function(){goTo(addDays(weekStart,-7))};
-$('wNext').onclick=function(){goTo(addDays(weekStart,7))};
+$('wPrev').onclick=function(){shift(-1)};
+$('wNext').onclick=function(){shift(1)};
 $('today').onclick=function(){goTo(new Date());scrollNow()};
 $('mPrev').onclick=function(){miniMonth=new Date(miniMonth.getFullYear(),miniMonth.getMonth()-1,1);mini()};
 $('mNext').onclick=function(){miniMonth=new Date(miniMonth.getFullYear(),miniMonth.getMonth()+1,1);mini()};
@@ -195,8 +236,8 @@ $('list').addEventListener('click',function(e){var d=e.target.closest('.d');if(!
 /* Pfeiltasten: ← vorherige Woche, → nächste Woche, T = heute */
 document.addEventListener('keydown',function(e){
   if(!$('auth').hidden||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;
-  if(e.key==='ArrowLeft')goTo(addDays(weekStart,-7));
-  else if(e.key==='ArrowRight')goTo(addDays(weekStart,7));
+  if(e.key==='ArrowLeft')shift(-1);
+  else if(e.key==='ArrowRight')shift(1);
   else if(e.key==='t'||e.key==='T'){goTo(new Date());scrollNow()}
 });
 

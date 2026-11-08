@@ -27,11 +27,12 @@ button{font-family:inherit;cursor:pointer}
 .todo{background:var(--panel);border-radius:16px;padding:14px;flex:1;display:flex;flex-direction:column;gap:10px;font-size:13px}
 .todo h2{margin:0;font-size:14px}
 .todo ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;flex:1}
-.todo li{background:var(--panel2);border-radius:10px;padding:8px 10px;display:grid;grid-template-columns:1fr auto;gap:1px 6px}
+.todo li{background:var(--panel2);border-radius:10px;padding:8px 10px;display:grid;grid-template-columns:auto 1fr auto;gap:1px 10px;align-items:center;transition:opacity .15s}
 .todo li .d{font-weight:600;font-size:12px}
-.todo li .t,.todo li .w{grid-column:1;color:var(--mute)}
+.todo li .d{grid-column:2;cursor:pointer}
+.todo li .t,.todo li .w{grid-column:2;color:var(--mute)}
 .todo li .w{color:#fff}
-.todo li button{grid-row:1/4;grid-column:2;background:none;border:0;color:#999;font-size:18px;padding:0 4px}
+.todo li button{grid-row:1/4;grid-column:3;background:none;border:0;color:#999;font-size:18px;padding:0 4px}
 .todo li button:hover{color:var(--red)}
 .empty{color:var(--mute);font-size:12px;background:none!important;padding:0!important}
 .btn{background:var(--lime);color:var(--dark);border:0;border-radius:10px;padding:10px 12px;font-weight:600;font-size:13px;transition:filter .15s}
@@ -45,7 +46,7 @@ input{border:0;border-radius:8px;background:var(--field);color:#111;padding:9px 
 .err{color:#ff9a9a;font-size:12px;min-height:15px}
 .cal{background:linear-gradient(135deg,#e4fc80,#fcfde6 45%,#bff4e7);border-radius:18px;padding:16px;color:#111;min-width:0;display:flex;flex-direction:column}
 .cal h1{margin:0 0 10px;font-size:22px;font-weight:800}
-.days,.grid{display:grid;grid-template-columns:42px repeat(7,1fr)}
+.days,.grid{display:grid;grid-template-columns:42px repeat(var(--n,7),minmax(0,1fr))}
 .days{gap:6px}
 .days div{background:var(--day);border-radius:12px;text-align:center;padding:7px 0;font-size:12px}
 .days b{display:block;font:800 15px "Sora",sans-serif}
@@ -84,5 +85,52 @@ input{border:0;border-radius:8px;background:var(--field);color:#111;padding:9px 
 .card.reg .btn{margin-top:14px;padding:11px;font-size:14px}
 .card.reg .switch .btn2{padding:10px;font-size:14px}
 
-@media (max-width:760px){.app{grid-template-columns:52px 1fr}.cal{grid-column:1/-1}.mini{display:none}.grid{max-height:360px}}
+/* Abhaken */
+.chk{grid-row:1/4;grid-column:1;position:relative;width:24px;height:24px;cursor:pointer;display:block}
+.chk input{position:absolute;inset:0;opacity:0;margin:0;width:100%;height:100%;cursor:pointer;padding:0}
+.chk span{position:absolute;inset:0;border:2px solid #888;border-radius:7px;background:transparent;transition:all .15s;pointer-events:none}
+.chk span::after{content:"";position:absolute;left:7px;top:2px;width:6px;height:12px;border:solid var(--dark);border-width:0 3px 3px 0;transform:rotate(45deg) scale(0);transition:transform .15s}
+.chk input:checked+span{background:var(--lime);border-color:var(--lime)}
+.chk input:checked+span::after{transform:rotate(45deg) scale(1)}
+.chk input:focus-visible+span{outline:3px solid var(--mint);outline-offset:2px}
+.chk:hover span{border-color:var(--lime)}
+.todo li.done{opacity:.55}
+.todo li.done .w{text-decoration:line-through}
+.ev.done{opacity:.45;text-decoration:line-through}
+
+/* Tablet: Kalender unter die Liste */
+@media (max-width:1000px){
+  .app{grid-template-columns:64px 1fr}
+  .mid{flex-direction:row;align-items:stretch}
+  .mini{flex:0 0 230px}
+  .cal{grid-column:1/-1}
+}
+/* Handy */
+@media (max-width:640px){
+  body{padding:10px}
+  .app{grid-template-columns:1fr;gap:10px}
+  .side{flex-direction:row;padding:8px 12px;overflow-x:auto;border-radius:14px}
+  .mid{flex-direction:column}
+  .mini{flex:none}
+  .mini table{font-size:13px}
+  .mini td,.mini th{padding:6px 0}
+  .todo{font-size:14px}
+  .todo li{padding:10px 12px}
+  .todo li button{font-size:24px;padding:4px 8px}
+  .chk{width:28px;height:28px}
+  .chk span::after{left:8px;top:3px;width:7px;height:13px}
+  input{font-size:16px}
+  .cal{padding:10px}
+  .calhead{flex-wrap:wrap}
+  .cal h1{font-size:18px;margin:0}
+  .nav{width:38px;height:38px}
+  .days{gap:4px}
+  .days div{padding:6px 0}
+  .grid{max-height:60vh}
+  .ev{font-size:10px;padding:3px 4px;line-height:1.15;overflow-wrap:anywhere}
+  .frame{padding:12px;border-radius:20px}
+  .card{padding:22px 18px}
+  .card h1{font-size:24px}
+  .close{top:-10px;right:-6px}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
