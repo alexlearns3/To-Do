@@ -6,12 +6,32 @@
 <title>Kalender</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;800&family=Inter:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="Style2.css">
+<style>
+/* Kalender-Navigation */
+.mhead,.calhead{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.calhead h1{margin:0}
+.navs{display:flex;align-items:center;gap:6px}
+.nav,.todayBtn{border:0;border-radius:999px;background:rgba(0,0,0,.06);cursor:pointer;font:inherit;color:inherit}
+.nav{width:32px;height:32px;font-size:20px;line-height:1}
+.todayBtn{padding:6px 14px;font-weight:600}
+.nav:hover,.todayBtn:hover{background:rgba(0,0,0,.12)}
+#mini td{cursor:pointer}
+#mini td.out{opacity:.35}
+#mini td.wk{background:rgba(185,182,255,.35)}
+#mini td:hover{outline:1px solid rgba(0,0,0,.2)}
+.days .today{color:#6c63ff}
+.days .today b{background:#6c63ff;color:#fff;border-radius:999px;padding:0 6px}
+.grid .c.now{background:rgba(185,182,255,.12)}
+</style>
 </head>
 <body>
 <div class="app" id="app" hidden>
   <div class="side" id="side"></div>
   <div class="mid">
-    <div class="mini"><b>OKTOBER 2026</b><table id="mini"></table></div>
+    <div class="mini">
+      <div class="mhead"><button class="nav" id="mPrev" type="button" aria-label="Vorheriger Monat">‹</button><b id="mTitle"></b><button class="nav" id="mNext" type="button" aria-label="Nächster Monat">›</button></div>
+      <table id="mini"></table>
+    </div>
     <section class="todo" aria-label="To-Do">
       <h2 id="todoTitle"></h2>
       <ul id="list"></ul>
@@ -26,7 +46,14 @@
     </section>
   </div>
   <section class="cal">
-    <h1>Oktober 2026</h1>
+    <div class="calhead">
+      <h1 id="calTitle"></h1>
+      <div class="navs">
+        <button class="nav" id="wPrev" type="button" aria-label="Vorherige Woche">‹</button>
+        <button class="todayBtn" id="today" type="button">Heute</button>
+        <button class="nav" id="wNext" type="button" aria-label="Nächste Woche">›</button>
+      </div>
+    </div>
     <div class="legend" id="legend"></div>
     <div class="days" id="days"></div>
     <div class="grid" id="grid"></div>
