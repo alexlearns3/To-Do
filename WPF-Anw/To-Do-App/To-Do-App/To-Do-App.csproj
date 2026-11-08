@@ -9,4 +9,7 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Update="db-token.txt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

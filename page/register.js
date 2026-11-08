@@ -1,8 +1,6 @@
 function $(i){return document.getElementById(i)}
  
 /* Turso-Datenbank */
-var DB_URL='https://sever-christophervoglauer.aws-eu-north-1.turso.io';
-var DB_TOKEN='eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3OTIzOTQ1MDUsImlkIjoiMDFhMTJlYjktMmYwMS03NTEwLWI5ZjUtZTc2MzE5ZjMwZDVmIiwia2lkIjoiWlRUdFB6WVR0Qy1NMlFqY3NTcG54anZraEYtS2FjSnJLZ0xyN2JOUGswUSIsInJpZCI6IjA3NTk4YzgwLWQ1ZjAtNDQ0Mi04MDc3LWNkNzM5MWZjZjRhMiJ9.EBHICcxG3g8ORizDk76aniqCyazWR1TGgFcK8h_aay_7W_gM-FptrUuP1mgX2262OAVb4oQ4IRG4C7eHY3UgCw'.trim().replace(/^token:\s*/i,''); // nur eyJ... einfügen, ohne "token:"
  
 function dbQuery(sql,args){
   return fetch(DB_URL+'/v2/pipeline',{

@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -11,7 +12,9 @@ namespace To_Do_App
     public static class Datenbank
     {
         private const string Url = "https://sever-christophervoglauer.aws-eu-north-1.turso.io";
-        private const string Token = "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3OTIzOTQ1MDUsImlkIjoiMDFhMTJlYjktMmYwMS03NTEwLWI5ZjUtZTc2MzE5ZjMwZDVmIiwia2lkIjoiWlRUdFB6WVR0Qy1NMlFqY3NTcG54anZraEYtS2FjSnJLZ0xyN2JOUGswUSIsInJpZCI6IjA3NTk4YzgwLWQ1ZjAtNDQ0Mi04MDc3LWNkNzM5MWZjZjRhMiJ9.EBHICcxG3g8ORizDk76aniqCyazWR1TGgFcK8h_aay_7W_gM-FptrUuP1mgX2262OAVb4oQ4IRG4C7eHY3UgCw"; // nur eyJ... einfügen
+        // Token liegt in db-token.txt neben dem Projekt und kommt nicht ins Repository
+        private static readonly string TokenDatei = Path.Combine(AppContext.BaseDirectory, "db-token.txt");
+        private static readonly string Token = File.Exists(TokenDatei) ? File.ReadAllText(TokenDatei) : "";
 
         private static readonly HttpClient client = new HttpClient();
 

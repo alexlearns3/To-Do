@@ -53,3 +53,5 @@ obj/
 .vs/
 *.user
 todo.db
+page/config.js
+db-token.txt

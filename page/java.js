@@ -70,7 +70,7 @@ function render(){
   var u=session[cur],td=u.todos;
   td.sort(function(a,b){return (a.d+a.t)<(b.d+b.t)?-1:1});
   $('todoTitle').textContent=u.name+' TO-DO:';
-  $('list').innerHTML=td.length?td.map(function(t,i){return '<li><span class="d">'+fmt(t.d)+'</span><button type="button" aria-label="Löschen" data-i="'+i+'">×</button><span class="t">'+t.t+' Uhr</span><span class="w">'+esc(t.w)+'</span></li>'}).join(''):'<li class="empty">Noch nichts geplant.</li>';
+  $('list').innerHTML=td.length?td.map(function(t,i){return '<li'+(t.x?' class="done"':'')+'><input class="chk" type="checkbox" aria-label="Erledigt" data-x="'+i+'"'+(t.x?' checked':'')+'><span class="d">'+fmt(t.d)+'</span><button type="button" aria-label="Löschen" data-i="'+i+'">×</button><span class="t">'+t.t+' Uhr</span><span class="w">'+esc(t.w)+'</span></li>'}).join(''):'<li class="empty">Noch nichts geplant.</li>';
   var h='',now=iso(new Date());
   hours.forEach(function(hr){
     h+='<div class="h">'+pad(hr)+':00</div>';
@@ -78,7 +78,7 @@ function render(){
       var date=iso(addDays(weekStart,i));
       var ev=session.map(function(p){
         if(p.show===false)return '';
-        return p.todos.filter(function(t){return t.d===date&&parseInt(t.t,10)===hr}).map(function(t){return '<div class="ev" style="background:'+p.color+'">'+esc(p.name)+':<br>'+esc(t.w)+'</div>'}).join('');
+        return p.todos.filter(function(t){return t.d===date&&parseInt(t.t,10)===hr}).map(function(t){return '<div class="ev'+(t.x?' xx':'')+'" style="background:'+p.color+'">'+esc(p.name)+':<br>'+esc(t.w)+'</div>'}).join('');
       }).join('');
       h+='<div class="c'+(date===now?' now':'')+'">'+ev+'</div>';
     }
@@ -87,8 +87,6 @@ function render(){
 }
 
 /* Turso-Datenbank */
-var DB_URL='https://sever-christophervoglauer.aws-eu-north-1.turso.io';
-var DB_TOKEN='eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3OTIzOTQ1MDUsImlkIjoiMDFhMTJlYjktMmYwMS03NTEwLWI5ZjUtZTc2MzE5ZjMwZDVmIiwia2lkIjoiWlRUdFB6WVR0Qy1NMlFqY3NTcG54anZraEYtS2FjSnJLZ0xyN2JOUGswUSIsInJpZCI6IjA3NTk4YzgwLWQ1ZjAtNDQ0Mi04MDc3LWNkNzM5MWZjZjRhMiJ9.EBHICcxG3g8ORizDk76aniqCyazWR1TGgFcK8h_aay_7W_gM-FptrUuP1mgX2262OAVb4oQ4IRG4C7eHY3UgCw'.trim().replace(/^token:\s*/i,''); // nur eyJ... einfügen, ohne "token:"
 
 function dbArg(v){
   if(typeof v==='number'&&Number.isInteger(v))return {type:'integer',value:String(v)};
@@ -120,12 +118,14 @@ function dbQuery(sql,args){
 }
 
 /* Todos: DB-Format "2026-10-20 10:00:00" <-> App-Format {d:'2026-10-20', t:'10:00', w:'...'} */
+// Spalte done nachtragen, falls die WPF-App die Datenbank noch nicht angelegt hat
+var dbBereit=Promise.resolve().then(function(){return dbQuery('ALTER TABLE todos ADD COLUMN done INTEGER NOT NULL DEFAULT 0')}).catch(function(){});
 function loadTodos(userId){
-  return dbQuery('SELECT id, description, date FROM todos WHERE user_id = ? ORDER BY date',[userId])
+  return dbBereit.then(function(){return dbQuery('SELECT id, description, date, done FROM todos WHERE user_id = ? ORDER BY date',[userId])})
     .then(function(rows){
       return rows.map(function(r){
         var dt=String(r.date).replace('T',' ');
-        return {id:+r.id,d:dt.slice(0,10),t:dt.slice(11,16),w:String(r.description)};
+        return {id:+r.id,d:dt.slice(0,10),t:dt.slice(11,16),w:String(r.description),x:+r.done===1};
       });
     });
 }
@@ -136,6 +136,10 @@ function addTodo(userId,t){
 }
 function deleteTodo(userId,todoId){
   return dbQuery('DELETE FROM todos WHERE id = ? AND user_id = ?',[todoId,userId]);
+}
+
+function toggleTodo(userId,todoId,x){
+  return dbQuery('UPDATE todos SET done = ? WHERE id = ? AND user_id = ?',[x?1:0,todoId,userId]);
 }
 
 /* DB-Zeile -> App-User; Farbe bleibt lokal, Todos kommen aus der Datenbank */
@@ -173,6 +177,15 @@ $('save').onclick=function(){
     .then(function(){btn.disabled=false});
 };
 $('list').onclick=function(e){
+  var x=e.target.getAttribute('data-x');
+  if(x!==null){
+    var person=session[cur],aufgabe=person.todos[+x];
+    e.target.disabled=true;
+    toggleTodo(person.id,aufgabe.id,!aufgabe.x)
+      .then(function(){aufgabe.x=!aufgabe.x;render()})
+      .catch(function(ex){console.error(ex);render();alert('Speichern fehlgeschlagen: '+ex.message)});
+    return;
+  }
   var i=e.target.getAttribute('data-i');if(i===null)return;
   var u=session[cur],todo=u.todos[+i];
   e.target.disabled=true;
