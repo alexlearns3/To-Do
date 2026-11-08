@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Registrierung</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;800&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="Style2.css">
+</head>
+<body>
+<div class="auth">
+  <div class="frame">
+    <form class="card reg" id="regForm" novalidate>
+      <h1>Registrierung:</h1>
+
+      <label for="rMail">E-Mail:</label>
+      <input id="rMail" type="email" autocomplete="email">
+
+      <label for="rPw">Passwort:</label>
+      <input id="rPw" type="password" autocomplete="new-password">
+
+      <label for="rName">Name:</label>
+      <input id="rName" autocomplete="name">
+
+      <div class="err" id="rErr" role="alert"></div>
+      <button class="btn" type="submit">Registrieren</button>
+      <div class="switch"><a class="btn2" href="index.html">Zurück zur Anmeldung</a></div>
+    </form>
+  </div>
+</div>
+
+<script src="daten.js"></script>
+<script src="register.js"></script>
+</body>
+</html>
