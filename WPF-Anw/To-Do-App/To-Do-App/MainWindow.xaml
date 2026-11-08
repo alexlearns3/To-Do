@@ -1,0 +1,86 @@
+<Window x:Class="To_Do_App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="To-Do-App" Height="520" Width="720" MinHeight="420" MinWidth="620">
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Oben: Person wählen -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+            <Label Content="Person:" VerticalAlignment="Center"/>
+            <ComboBox x:Name="cbPerson" Width="150" VerticalContentAlignment="Center" Padding="6,4" SelectionChanged="cbPerson_SelectionChanged"/>
+        </StackPanel>
+
+        <!-- Mitte: Liste der To-Dos -->
+        <ListBox x:Name="lstTodos" Grid.Row="1" Padding="4" HorizontalContentAlignment="Stretch"
+                 SelectionChanged="lstTodos_SelectionChanged">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid Margin="0,2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="26"/>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="90"/>
+                        </Grid.ColumnDefinitions>
+
+                        <CheckBox Grid.Column="0" VerticalAlignment="Center"
+                                  IsChecked="{Binding Erledigt, Mode=OneWay}" Click="chkErledigt_Click"/>
+                        <TextBlock Grid.Column="1" Text="{Binding DatumAnzeige}"/>
+                        <TextBlock Grid.Column="2" Text="{Binding Beschreibung}" TextTrimming="CharacterEllipsis">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Erledigt}" Value="True">
+                                            <Setter Property="TextDecorations" Value="Strikethrough"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Grid.Column="3" Text="{Binding Person}"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <!-- Eingabe -->
+        <GroupBox Grid.Row="2" Header="To-Do" Margin="0,10,0,0" Padding="6">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="80"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Label Grid.Row="0" Grid.Column="0" Content="Beschreibung:" VerticalAlignment="Center"/>
+                <TextBox x:Name="tbBeschreibung" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3"
+                         VerticalContentAlignment="Center" Padding="3" Margin="0,2"/>
+
+                <Label Grid.Row="1" Grid.Column="0" Content="Datum:" VerticalAlignment="Center"/>
+                <DatePicker x:Name="dpDatum" Grid.Row="1" Grid.Column="1" Margin="0,6,0,2"/>
+                <Label Grid.Row="1" Grid.Column="2" Content="Uhrzeit:" Margin="10,4,0,0" VerticalAlignment="Center"/>
+                <TextBox x:Name="tbUhrzeit" Grid.Row="1" Grid.Column="3" Text="12:00"
+                         VerticalContentAlignment="Center" Padding="3" Margin="0,6,0,2"/>
+            </Grid>
+        </GroupBox>
+
+        <!-- Unten: Knöpfe -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button Content="Hinzufügen" MinWidth="100" Padding="8,4" Click="btnHinzufuegen_Click"/>
+            <Button Content="Ändern" MinWidth="90" Padding="8,4" Margin="8,0,0,0" Click="btnAendern_Click"/>
+            <Button Content="Löschen" MinWidth="90" Padding="8,4" Margin="8,0,0,0" Click="btnLoeschen_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
