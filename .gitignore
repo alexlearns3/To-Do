@@ -46,3 +46,10 @@ $RECYCLE.BIN/
 # ============================
 node_modules/
 *.log
+
+# Build-Dateien und Visual Studio
+bin/
+obj/
+.vs/
+*.user
+todo.db
