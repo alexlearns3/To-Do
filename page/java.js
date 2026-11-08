@@ -5,7 +5,7 @@ function $(i){return document.getElementById(i)}
 function pad(n){return (n<10?'0':'')+n}
 function esc(s){return s.replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function fmt(d){var p=d.split('-');return p[2]+'. '+p[1]+'. '+p[0]}
-
+ 
 function side(){
   $('side').innerHTML=session.map(function(u,i){return '<button class="av'+(i===cur?' on':'')+'" style="background:'+u.color+'" data-u="'+i+'" title="'+esc(u.name)+'" aria-label="'+esc(u.name)+'">'+esc(u.name.charAt(0).toUpperCase())+'</button>'}).join('')+'<button class="plus" id="plus" type="button" aria-label="Konto hinzufügen">+</button>';
 }
@@ -53,11 +53,56 @@ $('side').onclick=function(e){
   if(b.id==='plus'){showAuth()}
   else{cur=+b.getAttribute('data-u');openForm(false);render()}
 };
-
+ 
+/* Turso-Datenbank */
+var DB_URL='https://sever-christophervoglauer.aws-eu-north-1.turso.io';
+var DB_TOKEN='eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3OTIzOTQ1MDUsImlkIjoiMDFhMTJlYjktMmYwMS03NTEwLWI5ZjUtZTc2MzE5ZjMwZDVmIiwia2lkIjoiWlRUdFB6WVR0Qy1NMlFqY3NTcG54anZraEYtS2FjSnJLZ0xyN2JOUGswUSIsInJpZCI6IjA3NTk4YzgwLWQ1ZjAtNDQ0Mi04MDc3LWNkNzM5MWZjZjRhMiJ9.EBHICcxG3g8ORizDk76aniqCyazWR1TGgFcK8h_aay_7W_gM-FptrUuP1mgX2262OAVb4oQ4IRG4C7eHY3UgCw'.trim().replace(/^token:\s*/i,''); // nur eyJ... einfügen, ohne "token:"
+ 
+function dbQuery(sql,args){
+  return fetch(DB_URL+'/v2/pipeline',{
+    method:'POST',
+    headers:{'Authorization':'Bearer '+DB_TOKEN,'Content-Type':'application/json'},
+    body:JSON.stringify({requests:[
+      {type:'execute',stmt:{sql:sql,args:args.map(function(v){return{type:'text',value:String(v)}})}},
+      {type:'close'}
+    ]})
+  }).then(function(r){
+    if(r.ok)return r.json();
+    return r.text().then(function(t){
+      console.error('Turso-Antwort:',r.status,t);
+      if(r.status===401||r.status===403)throw new Error('Token ungültig oder fehlt');
+      throw new Error('HTTP '+r.status+': '+t);
+    });
+  }).then(function(d){
+    var res=d.results[0];
+    if(res.type!=='ok')throw new Error(res.error&&res.error.message);
+    var cols=res.response.result.cols.map(function(c){return c.name});
+    return res.response.result.rows.map(function(row){
+      var o={};row.forEach(function(c,i){o[cols[i]]=c.value});return o;
+    });
+  });
+}
+ 
+/* DB-Zeile -> App-User (mit name, color, todos); Todos bleiben lokal gespeichert */
+var colors=['#e57373','#64b5f6','#81c784','#ffb74d','#ba68c8','#4db6ac'];
+function toUser(row){
+  var mail=String(row.email).toLowerCase();
+  var u=users.find(function(x){return x.mail===mail});
+  if(!u){
+    u={mail:mail,name:row.username,color:colors[users.length%colors.length],todos:[]};
+    users.push(u);saveUsers(users);
+  }
+  u.id=+row.id;
+  if(!u.name)u.name=row.username;
+  if(!u.color)u.color=colors[0];
+  if(!u.todos)u.todos=[];
+  return u;
+}
+ 
 /* Anmeldung */
 function login(u){
   if($('app').hidden){$('app').hidden=false;setTimeout(function(){$('grid').scrollTop=46*7},0)}
-  var i=session.indexOf(u);if(i<0){session.push(u);i=session.length-1}
+  var i=session.findIndex(function(x){return x.mail===u.mail});if(i<0){session.push(u);i=session.length-1}
   cur=i;
   saveSession(session.map(function(x){return x.mail}));
 }
@@ -75,17 +120,23 @@ $('authForm').onsubmit=function(e){
   var m=$('aMail').value.trim().toLowerCase(),p=$('aPw').value,err=$('aErr');
   if(!m||!p){err.textContent='Bitte alle Felder ausfüllen.';return}
   if(!/^\S+@\S+\.\S+$/.test(m)){err.textContent='Bitte gib eine gültige E-Mail-Adresse ein.';return}
-  var u=users.find(function(x){return x.mail===m});
-  if(!u||u.pw!==p){err.textContent='E-Mail oder Passwort stimmt nicht.';return}
-  login(u);
-  hideAuth();openForm(false);render();
+  dbQuery('SELECT id, username, email FROM users WHERE email = ? AND password = ?',[m,p])
+    .then(function(rows){
+      if(!rows.length){err.textContent='E-Mail oder Passwort stimmt nicht.';return}
+      login(toUser(rows[0]));
+      hideAuth();openForm(false);render();
+    })
+    .catch(function(ex){console.error(ex);err.textContent='Fehler: '+ex.message});
 };
 $('legend').onclick=function(e){var b=e.target.closest('button');if(!b)return;var u=session[+b.getAttribute('data-l')];u.show=u.show===false;render()};
-
-/* Start: nach der Registrierung wieder angemeldete Konten laden */
-loadSession().forEach(function(m){
-  var u=users.find(function(x){return x.mail===m});
-  if(u)login(u);
-});
+ 
+/* Start: angemeldete Konten aus der Datenbank laden */
 mini();days();render();$('grid').scrollTop=46*7;
-if(session.length){$('auth').hidden=true}else{showAuth()}
+Promise.all(loadSession().map(function(m){
+  return dbQuery('SELECT id, username, email FROM users WHERE email = ?',[m])
+    .then(function(rows){if(rows.length)login(toUser(rows[0]))})
+    .catch(function(ex){console.error(ex)});
+})).then(function(){
+  render();
+  if(session.length){$('auth').hidden=true}else{showAuth()}
+});
