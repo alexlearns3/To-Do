@@ -1,91 +1,112 @@
+using System.Text.RegularExpressions;
 using System.Windows;
-using Microsoft.Data.Sqlite;
 
 namespace To_Do_App
 {
-    // Erstes Fenster: anmelden oder neu registrieren
+    // Erstes Fenster: anmelden oder neu registrieren (Daten liegen in der Turso-Datenbank)
     public partial class AnmeldeFenster : Window
     {
         public AnmeldeFenster()
         {
             InitializeComponent();
-            MainWindow.DatenbankErstellen();
+            Loaded += async (s, e) => await Sicher(Datenbank.TabellenErstellenAsync);
         }
 
-        // Prüft, ob Name und Passwort ausgefüllt sind
-        private bool EingabePruefen()
+        // Führt eine Datenbank-Aktion aus, sperrt solange das Fenster und zeigt Fehler an
+        private async Task Sicher(Func<Task> aktion)
         {
-            if (tbName.Text.Trim() == "" || pbPasswort.Password == "")
+            IsEnabled = false;
+            try
             {
-                MessageBox.Show("Bitte Name und Passwort eingeben.");
-                return false;
+                await aktion();
             }
-            return true;
+            catch (Exception ex)
+            {
+                MessageBox.Show("Datenbankfehler:\n" + ex.Message);
+            }
+            finally
+            {
+                IsEnabled = true;
+            }
         }
 
         // Hauptfenster für die Person öffnen und dieses Fenster schließen
-        private void HauptfensterOeffnen()
+        private void HauptfensterOeffnen(long id, string name)
         {
-            MainWindow fenster = new MainWindow(tbName.Text.Trim());
+            MainWindow fenster = new MainWindow(id, name);
             fenster.Show();
             Close();
         }
 
-        private void btnAnmelden_Click(object sender, RoutedEventArgs e)
+        private async void btnAnmelden_Click(object sender, RoutedEventArgs e)
         {
-            if (!EingabePruefen())
+            string name = tbName.Text.Trim();
+            string mail = tbMail.Text.Trim().ToLower();
+            string passwort = pbPasswort.Password;
+
+            if ((name == "" && mail == "") || passwort == "")
             {
+                MessageBox.Show("Bitte E-Mail oder Name und das Passwort eingeben.");
                 return;
             }
 
-            using SqliteConnection connection = MainWindow.VerbindungOeffnen();
-
-            SqliteCommand cmd = connection.CreateCommand();
-            cmd.CommandText = "SELECT COUNT(*) FROM User WHERE Name = $name AND Passwort = $passwort";
-            cmd.Parameters.AddWithValue("$name", tbName.Text.Trim());
-            cmd.Parameters.AddWithValue("$passwort", pbPasswort.Password);
-
-            if ((long)cmd.ExecuteScalar()! == 0)
+            await Sicher(async () =>
             {
-                MessageBox.Show("Name oder Passwort stimmt nicht.");
-                return;
-            }
+                List<Dictionary<string, object?>> zeilen = mail != ""
+                    ? await Datenbank.AbfrageAsync("SELECT id, username FROM users WHERE email = ? AND password = ?", mail, passwort)
+                    : await Datenbank.AbfrageAsync("SELECT id, username FROM users WHERE username = ? AND password = ? LIMIT 1", name, passwort);
 
-            HauptfensterOeffnen();
+                if (zeilen.Count == 0)
+                {
+                    MessageBox.Show("Anmeldedaten stimmen nicht.");
+                    return;
+                }
+
+                HauptfensterOeffnen((long)zeilen[0]["id"]!, Convert.ToString(zeilen[0]["username"]) ?? "");
+            });
         }
 
-        private void btnRegistrieren_Click(object sender, RoutedEventArgs e)
+        private async void btnRegistrieren_Click(object sender, RoutedEventArgs e)
         {
-            if (!EingabePruefen())
+            string name = tbName.Text.Trim();
+            string mail = tbMail.Text.Trim().ToLower();
+            string passwort = pbPasswort.Password;
+
+            if (name == "" || mail == "" || passwort == "")
             {
+                MessageBox.Show("Zum Registrieren bitte Name, E-Mail und Passwort eingeben.");
                 return;
             }
-
-            string name = tbName.Text.Trim();
-
+            if (!Regex.IsMatch(mail, @"^\S+@\S+\.\S+$"))
+            {
+                MessageBox.Show("Bitte eine gültige E-Mail-Adresse eingeben.");
+                return;
+            }
+            if (passwort.Length < 6)
+            {
+                MessageBox.Show("Das Passwort braucht mindestens 6 Zeichen.");
+                return;
+            }
             if (name == "Gesamt")
             {
                 MessageBox.Show("Dieser Name ist nicht erlaubt.");
                 return;
             }
 
-            using SqliteConnection connection = MainWindow.VerbindungOeffnen();
-
-            SqliteCommand cmd = connection.CreateCommand();
-            cmd.CommandText = "SELECT COUNT(*) FROM User WHERE Name = $name";
-            cmd.Parameters.AddWithValue("$name", name);
-
-            if ((long)cmd.ExecuteScalar()! > 0)
+            await Sicher(async () =>
             {
-                MessageBox.Show("Diesen Namen gibt es schon.");
-                return;
-            }
+                var vorhanden = await Datenbank.AbfrageAsync("SELECT id FROM users WHERE email = ?", mail);
+                if (vorhanden.Count > 0)
+                {
+                    MessageBox.Show("Zu dieser E-Mail gibt es schon ein Konto.");
+                    return;
+                }
 
-            cmd.CommandText = "INSERT INTO User (Name, Passwort) VALUES ($name, $passwort)";
-            cmd.Parameters.AddWithValue("$passwort", pbPasswort.Password);
-            cmd.ExecuteNonQuery();
+                var neu = await Datenbank.AbfrageAsync(
+                    "INSERT INTO users (username, email, password) VALUES (?, ?, ?) RETURNING id", name, mail, passwort);
 
-            HauptfensterOeffnen();
+                HauptfensterOeffnen((long)neu[0]["id"]!, name);
+            });
         }
     }
 }

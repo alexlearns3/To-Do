@@ -1,140 +1,112 @@
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.Data.Sqlite;
 
 namespace To_Do_App
 {
     public partial class MainWindow : Window
     {
-        // Die Datenbank-Datei liegt neben der .exe und wird beim ersten Start erstellt
-        private static string connectionString = "Data Source=todo.db";
+        private readonly long angemeldeteId;
+        private bool laedt;
 
-        // Wird vom Anmelde-Fenster mit dem Namen der angemeldeten Person geöffnet
-        public MainWindow(string angemeldetePerson)
+        // Wird vom Anmelde-Fenster mit der ID und dem Namen der angemeldeten Person geöffnet
+        public MainWindow(long userId, string name)
         {
             InitializeComponent();
 
-            Title = "To-Do-App - " + angemeldetePerson;
+            angemeldeteId = userId;
+            Title = "To-Do-App - " + name;
             dpDatum.SelectedDate = DateTime.Today;
-            PersonenLaden(angemeldetePerson);
+            Loaded += async (s, e) => await Sicher(PersonenLadenAsync);
         }
 
-        // Personen aus der Datenbank in die Auswahl laden und die angemeldete Person wählen
-        private void PersonenLaden(string angemeldetePerson)
+        // Führt eine Datenbank-Aktion aus, sperrt solange das Fenster und zeigt Fehler an
+        private async Task Sicher(Func<Task> aktion)
         {
-            cbPerson.Items.Add(new ComboBoxItem { Content = "Gesamt" });
-            ComboBoxItem? gewaehlt = null;
-
-            using SqliteConnection connection = VerbindungOeffnen();
-
-            SqliteCommand cmd = connection.CreateCommand();
-            cmd.CommandText = "SELECT Name FROM User ORDER BY ID";
-
-            using SqliteDataReader reader = cmd.ExecuteReader();
-            while (reader.Read())
+            IsEnabled = false;
+            try
             {
-                ComboBoxItem item = new ComboBoxItem { Content = reader.GetString(0) };
-                cbPerson.Items.Add(item);
-
-                if (reader.GetString(0) == angemeldetePerson)
-                {
-                    gewaehlt = item;
-                }
+                await aktion();
             }
-
-            cbPerson.SelectedItem = gewaehlt;
+            catch (Exception ex)
+            {
+                MessageBox.Show("Datenbankfehler:\n" + ex.Message);
+            }
+            finally
+            {
+                IsEnabled = true;
+            }
         }
 
         // ---------- Datenbank ----------
 
-        public static SqliteConnection VerbindungOeffnen()
+        // Personen aus der Datenbank in die Auswahl laden und die angemeldete Person wählen
+        private async Task PersonenLadenAsync()
         {
-            SqliteConnection connection = new SqliteConnection(connectionString);
-            connection.Open();
-            return connection;
-        }
-
-        // Tabellen User und Todo erstellen (wie im drawio-Diagramm)
-        public static void DatenbankErstellen()
-        {
-            using SqliteConnection connection = VerbindungOeffnen();
-
-            SqliteCommand cmd = connection.CreateCommand();
-            cmd.CommandText =
-                "CREATE TABLE IF NOT EXISTS User (" +
-                "  ID INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "  Name TEXT NOT NULL," +
-                "  Passwort TEXT NOT NULL);" +
-                "CREATE TABLE IF NOT EXISTS Todo (" +
-                "  TodoId INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "  Datum TEXT NOT NULL," +
-                "  Beschreibung TEXT NOT NULL," +
-                "  Creat INTEGER NOT NULL REFERENCES User(ID));";
-            cmd.ExecuteNonQuery();
-
-            // Spalte "Erledigt" nachtragen (bei einer alten todo.db fehlt sie)
+            laedt = true;
             try
             {
-                cmd.CommandText = "ALTER TABLE Todo ADD COLUMN Erledigt INTEGER NOT NULL DEFAULT 0";
-                cmd.ExecuteNonQuery();
+                cbPerson.Items.Clear();
+                ComboBoxItem gesamt = new ComboBoxItem { Content = "Gesamt", Tag = null };
+                cbPerson.Items.Add(gesamt);
+                ComboBoxItem? gewaehlt = null;
+
+                var zeilen = await Datenbank.AbfrageAsync("SELECT id, username FROM users ORDER BY id");
+                foreach (var z in zeilen)
+                {
+                    long id = (long)z["id"]!;
+                    ComboBoxItem item = new ComboBoxItem { Content = Convert.ToString(z["username"]), Tag = id };
+                    cbPerson.Items.Add(item);
+
+                    if (id == angemeldeteId)
+                    {
+                        gewaehlt = item;
+                    }
+                }
+
+                cbPerson.SelectedItem = gewaehlt ?? gesamt;
             }
-            catch (SqliteException)
+            finally
             {
-                // Spalte gibt es schon
+                laedt = false;
             }
 
-            // Personen nur einfügen, wenn die Tabelle User noch leer ist
-            cmd.CommandText = "SELECT COUNT(*) FROM User";
-            long anzahl = (long)cmd.ExecuteScalar()!;
-
-            if (anzahl == 0)
-            {
-                cmd.CommandText =
-                    "INSERT INTO User (Name, Passwort) VALUES " +
-                    "('Mia', '1234'), ('Liana', '1234'), ('Alex', '1234'), ('Vogli', '1234')";
-                cmd.ExecuteNonQuery();
-            }
+            await TodosLadenAsync();
         }
 
         // To-Dos aus der Datenbank in die Liste laden
-        private void TodosLaden()
+        private async Task TodosLadenAsync()
         {
-            lstTodos.Items.Clear();
-
-            using SqliteConnection connection = VerbindungOeffnen();
-
-            SqliteCommand cmd = connection.CreateCommand();
-            cmd.CommandText =
-                "SELECT Todo.TodoId, Todo.Datum, Todo.Beschreibung, User.Name, Todo.Erledigt " +
-                "FROM Todo JOIN User ON Todo.Creat = User.ID";
+            string sql =
+                "SELECT todos.id, todos.date, todos.description, users.username, todos.done " +
+                "FROM todos JOIN users ON todos.user_id = users.id";
 
             // Bei "Gesamt" alle anzeigen, sonst nur die To-Dos der Person
-            if (GewaehltePerson() != "Gesamt")
-            {
-                cmd.CommandText += " WHERE User.Name = $name";
-                cmd.Parameters.AddWithValue("$name", GewaehltePerson());
-            }
-            cmd.CommandText += " ORDER BY Todo.Datum";
+            long? userId = GewaehlteId();
+            var zeilen = userId == null
+                ? await Datenbank.AbfrageAsync(sql + " ORDER BY todos.date")
+                : await Datenbank.AbfrageAsync(sql + " WHERE todos.user_id = ? ORDER BY todos.date", userId.Value);
 
-            using SqliteDataReader reader = cmd.ExecuteReader();
-            while (reader.Read())
+            lstTodos.Items.Clear();
+            foreach (var z in zeilen)
             {
-                Todo todo = new Todo(reader.GetInt64(0), reader.GetString(1),
-                                     reader.GetString(2), reader.GetString(3));
-                todo.Erledigt = reader.GetInt64(4) == 1;
+                Todo todo = new Todo((long)z["id"]!,
+                                     Convert.ToString(z["date"]) ?? "",
+                                     Convert.ToString(z["description"]) ?? "",
+                                     Convert.ToString(z["username"]) ?? "");
+                todo.Erledigt = Convert.ToInt64(z["done"] ?? 0L) == 1;
                 lstTodos.Items.Add(todo);
             }
         }
 
         // ---------- Hilfsmethoden ----------
 
-        private string GewaehltePerson()
+        // ID der oben gewählten Person, oder null bei "Gesamt"
+        private long? GewaehlteId()
         {
-            ComboBoxItem item = (ComboBoxItem)cbPerson.SelectedItem;
-            return item.Content.ToString()!;
+            return (cbPerson.SelectedItem as ComboBoxItem)?.Tag as long?;
         }
 
-        // Prüft die Eingaben. Gibt true zurück und liefert das Datum als Text "JJJJ-MM-TT HH:MM"
+        // Prüft die Eingaben. Gibt true zurück und liefert das Datum als Text "JJJJ-MM-TT HH:MM:SS"
         private bool EingabePruefen(out string datum)
         {
             datum = "";
@@ -155,7 +127,8 @@ namespace To_Do_App
                 return false;
             }
 
-            datum = dpDatum.SelectedDate.Value.ToString("yyyy-MM-dd") + " " + uhrzeit.ToString(@"hh\:mm");
+            // gleiches Format wie die Web-App
+            datum = dpDatum.SelectedDate.Value.ToString("yyyy-MM-dd") + " " + uhrzeit.ToString(@"hh\:mm") + ":00";
             return true;
         }
 
@@ -168,9 +141,13 @@ namespace To_Do_App
 
         // ---------- Ereignisse ----------
 
-        private void cbPerson_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void cbPerson_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            TodosLaden();
+            if (laedt)
+            {
+                return;
+            }
+            await Sicher(TodosLadenAsync);
         }
 
         // Ein To-Do in der Liste angeklickt -> Werte in die Eingabefelder schreiben
@@ -191,9 +168,10 @@ namespace To_Do_App
             }
         }
 
-        private void btnHinzufuegen_Click(object sender, RoutedEventArgs e)
+        private async void btnHinzufuegen_Click(object sender, RoutedEventArgs e)
         {
-            if (GewaehltePerson() == "Gesamt")
+            long? userId = GewaehlteId();
+            if (userId == null)
             {
                 MessageBox.Show("Bitte oben eine Person auswählen.");
                 return;
@@ -202,23 +180,19 @@ namespace To_Do_App
             {
                 return;
             }
+            string beschreibung = tbBeschreibung.Text.Trim();
 
-            using SqliteConnection connection = VerbindungOeffnen();
-
-            SqliteCommand cmd = connection.CreateCommand();
-            cmd.CommandText =
-                "INSERT INTO Todo (Datum, Beschreibung, Creat) " +
-                "VALUES ($datum, $beschreibung, (SELECT ID FROM User WHERE Name = $name))";
-            cmd.Parameters.AddWithValue("$datum", datum);
-            cmd.Parameters.AddWithValue("$beschreibung", tbBeschreibung.Text.Trim());
-            cmd.Parameters.AddWithValue("$name", GewaehltePerson());
-            cmd.ExecuteNonQuery();
-
-            FelderLeeren();
-            TodosLaden();
+            await Sicher(async () =>
+            {
+                await Datenbank.AbfrageAsync(
+                    "INSERT INTO todos (user_id, description, date) VALUES (?, ?, ?)",
+                    userId.Value, beschreibung, datum);
+                FelderLeeren();
+                await TodosLadenAsync();
+            });
         }
 
-        private void btnAendern_Click(object sender, RoutedEventArgs e)
+        private async void btnAendern_Click(object sender, RoutedEventArgs e)
         {
             if (lstTodos.SelectedItem == null)
             {
@@ -231,40 +205,32 @@ namespace To_Do_App
             }
 
             Todo todo = (Todo)lstTodos.SelectedItem;
+            string beschreibung = tbBeschreibung.Text.Trim();
 
-            using SqliteConnection connection = VerbindungOeffnen();
-
-            SqliteCommand cmd = connection.CreateCommand();
-            cmd.CommandText = "UPDATE Todo SET Datum = $datum, Beschreibung = $beschreibung WHERE TodoId = $id";
-            cmd.Parameters.AddWithValue("$datum", datum);
-            cmd.Parameters.AddWithValue("$beschreibung", tbBeschreibung.Text.Trim());
-            cmd.Parameters.AddWithValue("$id", todo.Id);
-            cmd.ExecuteNonQuery();
-
-            FelderLeeren();
-            TodosLaden();
+            await Sicher(async () =>
+            {
+                await Datenbank.AbfrageAsync(
+                    "UPDATE todos SET date = ?, description = ? WHERE id = ?",
+                    datum, beschreibung, todo.Id);
+                FelderLeeren();
+                await TodosLadenAsync();
+            });
         }
 
         // Häkchen in der Liste angeklickt
-        private void chkErledigt_Click(object sender, RoutedEventArgs e)
+        private async void chkErledigt_Click(object sender, RoutedEventArgs e)
         {
             CheckBox haekchen = (CheckBox)sender;
-            ErledigtUmschalten((Todo)haekchen.DataContext);
+            Todo todo = (Todo)haekchen.DataContext;
+
+            await Sicher(async () =>
+            {
+                await Datenbank.AbfrageAsync("UPDATE todos SET done = 1 - done WHERE id = ?", todo.Id);
+                await TodosLadenAsync();
+            });
         }
 
-        private void ErledigtUmschalten(Todo todo)
-        {
-            using SqliteConnection connection = VerbindungOeffnen();
-
-            SqliteCommand cmd = connection.CreateCommand();
-            cmd.CommandText = "UPDATE Todo SET Erledigt = 1 - Erledigt WHERE TodoId = $id";
-            cmd.Parameters.AddWithValue("$id", todo.Id);
-            cmd.ExecuteNonQuery();
-
-            TodosLaden();
-        }
-
-        private void btnLoeschen_Click(object sender, RoutedEventArgs e)
+        private async void btnLoeschen_Click(object sender, RoutedEventArgs e)
         {
             if (lstTodos.SelectedItem == null)
             {
@@ -274,15 +240,12 @@ namespace To_Do_App
 
             Todo todo = (Todo)lstTodos.SelectedItem;
 
-            using SqliteConnection connection = VerbindungOeffnen();
-
-            SqliteCommand cmd = connection.CreateCommand();
-            cmd.CommandText = "DELETE FROM Todo WHERE TodoId = $id";
-            cmd.Parameters.AddWithValue("$id", todo.Id);
-            cmd.ExecuteNonQuery();
-
-            FelderLeeren();
-            TodosLaden();
+            await Sicher(async () =>
+            {
+                await Datenbank.AbfrageAsync("DELETE FROM todos WHERE id = ?", todo.Id);
+                FelderLeeren();
+                await TodosLadenAsync();
+            });
         }
     }
 }
