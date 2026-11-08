@@ -3,6 +3,8 @@ function $(i){return document.getElementById(i)}
 /* Turso-Datenbank */
  
 function dbQuery(sql,args){
+  if(typeof DB_URL==='undefined'||typeof DB_TOKEN==='undefined'||/HIER_TOKEN/.test(DB_TOKEN))
+    return Promise.reject(new Error('page/config.js fehlt oder der Token ist nicht eingetragen (siehe README).'));
   return fetch(DB_URL+'/v2/pipeline',{
     method:'POST',
     headers:{'Authorization':'Bearer '+DB_TOKEN,'Content-Type':'application/json'},

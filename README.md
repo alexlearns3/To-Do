@@ -14,8 +14,8 @@ Gemeinsame To-Do-Anwendung (Teamprojekt, GitHub-Programmierbeispiel 4).
 - To-Dos pro Person anzeigen (oder alle: "Gesamt")
 - To-Do mit Datum, Uhrzeit und Beschreibung hinzufügen
 - To-Do mit Häkchen als erledigt markieren, auch am Handy
-- To-Do ändern (WPF: Eintrag anklicken, Felder ändern, "Ändern")
-- Web: Wochen blättern, "Heute"-Knopf
+- To-Do ändern (WPF: Eintrag anklicken, Felder ändern, "Ändern"; Web: Stift-Symbol)
+- Web: Wochen blättern, "Heute"-Knopf, überfällige Aufgaben rot
 - To-Do löschen
 - Web und WPF teilen dieselbe Online-Datenbank (Turso, basiert auf SQLite)
 

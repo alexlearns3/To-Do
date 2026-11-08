@@ -65,12 +65,17 @@ function days(){
   var t=iso(new Date());
   $('days').innerHTML='<span></span>'+names.map(function(n,i){var d=addDays(weekStart,i);return '<div'+(iso(d)===t?' class="today"':'')+'>'+n+'<b>'+d.getDate()+'</b></div>'}).join('');
 }
+function cls(t){
+  if(t.x)return ' class="done"';
+  var n=new Date();
+  return t.d+t.t<iso(n)+pad(n.getHours())+':'+pad(n.getMinutes())?' class="late"':'';
+}
 function render(){
   if(!session.length){$('list').innerHTML='';$('grid').innerHTML='';side();legend();return}
   var u=session[cur],td=u.todos;
   td.sort(function(a,b){return (a.d+a.t)<(b.d+b.t)?-1:1});
   $('todoTitle').textContent=u.name+' TO-DO:';
-  $('list').innerHTML=td.length?td.map(function(t,i){return '<li'+(t.x?' class="done"':'')+'><input class="chk" type="checkbox" aria-label="Erledigt" data-x="'+i+'"'+(t.x?' checked':'')+'><span class="d">'+fmt(t.d)+'</span><button type="button" aria-label="Löschen" data-i="'+i+'">×</button><span class="t">'+t.t+' Uhr</span><span class="w">'+esc(t.w)+'</span></li>'}).join(''):'<li class="empty">Noch nichts geplant.</li>';
+  $('list').innerHTML=td.length?td.map(function(t,i){return '<li'+cls(t)+'><input class="chk" type="checkbox" aria-label="Erledigt" data-x="'+i+'"'+(t.x?' checked':'')+'><span class="d">'+fmt(t.d)+'</span><span class="act"><button type="button" aria-label="Bearbeiten" data-e="'+i+'">✎</button><button type="button" aria-label="Löschen" data-i="'+i+'">×</button></span><span class="t">'+t.t+' Uhr</span><span class="w">'+esc(t.w)+'</span></li>'}).join(''):'<li class="empty">Noch nichts geplant.</li>';
   var h='',now=iso(new Date());
   hours.forEach(function(hr){
     h+='<div class="h">'+pad(hr)+':00</div>';
@@ -93,6 +98,8 @@ function dbArg(v){
   return {type:'text',value:String(v)};
 }
 function dbQuery(sql,args){
+  if(typeof DB_URL==='undefined'||typeof DB_TOKEN==='undefined'||/HIER_TOKEN/.test(DB_TOKEN))
+    return Promise.reject(new Error('page/config.js fehlt oder der Token ist nicht eingetragen (siehe README).'));
   return fetch(DB_URL+'/v2/pipeline',{
     method:'POST',
     headers:{'Authorization':'Bearer '+DB_TOKEN,'Content-Type':'application/json'},
@@ -138,6 +145,10 @@ function deleteTodo(userId,todoId){
   return dbQuery('DELETE FROM todos WHERE id = ? AND user_id = ?',[todoId,userId]);
 }
 
+function updateTodo(userId,todo,d,t,w){
+  return dbQuery('UPDATE todos SET description = ?, date = ? WHERE id = ? AND user_id = ?',[w,d+' '+t+':00',todo.id,userId])
+    .then(function(){todo.d=d;todo.t=t;todo.w=w;return todo});
+}
 function toggleTodo(userId,todoId,x){
   return dbQuery('UPDATE todos SET done = ? WHERE id = ? AND user_id = ?',[x?1:0,todoId,userId]);
 }
@@ -163,7 +174,13 @@ function toUser(row){
 }
 
 /* Todo-Formular */
-function openForm(o){$('form').classList.toggle('open',o);$('open').hidden=o;$('err').textContent='';if(o){$('date').value=iso(new Date());$('time').value='';$('what').value='';$('date').focus()}}
+var editTodo=null;
+function openForm(o,t){
+  editTodo=o&&t?t:null;
+  $('form').classList.toggle('open',o);$('open').hidden=o;$('err').textContent='';
+  $('save').textContent=editTodo?'Speichern':'Hinzufügen';
+  if(o){$('date').value=t?t.d:iso(new Date());$('time').value=t?t.t:'';$('what').value=t?t.w:'';$('date').focus()}
+}
 $('open').onclick=function(){openForm(true)};
 $('cancel').onclick=function(){openForm(false)};
 $('save').onclick=function(){
@@ -171,8 +188,8 @@ $('save').onclick=function(){
   if(!d||!t||!w){$('err').textContent='Bitte Datum, Uhrzeit und Aufgabe ausfüllen.';return}
   var u=session[cur];
   btn.disabled=true;
-  addTodo(u.id,{d:d,t:t,w:w})
-    .then(function(todo){u.todos.push(todo);openForm(false);goTo(parseIso(todo.d))})
+  (editTodo?updateTodo(u.id,editTodo,d,t,w):addTodo(u.id,{d:d,t:t,w:w}).then(function(todo){u.todos.push(todo);return todo}))
+    .then(function(todo){openForm(false);goTo(parseIso(todo.d))})
     .catch(function(ex){console.error(ex);$('err').textContent='Fehler: '+ex.message})
     .then(function(){btn.disabled=false});
 };
@@ -186,8 +203,11 @@ $('list').onclick=function(e){
       .catch(function(ex){console.error(ex);render();alert('Speichern fehlgeschlagen: '+ex.message)});
     return;
   }
+  var ed=e.target.getAttribute('data-e');
+  if(ed!==null){openForm(true,session[cur].todos[+ed]);return}
   var i=e.target.getAttribute('data-i');if(i===null)return;
   var u=session[cur],todo=u.todos[+i];
+  openForm(false);
   e.target.disabled=true;
   deleteTodo(u.id,todo.id)
     .then(function(){

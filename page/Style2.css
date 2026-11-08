@@ -35,7 +35,9 @@ button{font-family:inherit;cursor:pointer}
 .todo li .chk{grid-row:1/4;grid-column:1;width:24px;height:24px;margin:0;accent-color:var(--lime)}
 .todo li.done .w{text-decoration:line-through;color:var(--mute)}
 .ev.xx{opacity:.55;text-decoration:line-through}
-.todo li button{grid-row:1/4;grid-column:3;background:none;border:0;color:#999;font-size:18px;padding:0 4px}
+.todo li.late .d,.todo li.late .t{color:var(--red)}
+.todo li .act{grid-row:1/4;grid-column:3;display:flex;gap:2px}
+.todo li button{background:none;border:0;color:#999;font-size:18px;min-width:32px;min-height:32px;padding:0}
 .todo li button:hover{color:var(--red)}
 .empty{color:var(--mute);font-size:12px;background:none!important;padding:0!important}
 .btn{background:var(--lime);color:var(--dark);border:0;border-radius:10px;padding:10px 12px;font-weight:600;font-size:13px;transition:filter .15s}

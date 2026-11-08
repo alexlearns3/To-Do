@@ -22,6 +22,11 @@ namespace To_Do_App
         // Gibt die Zeilen zurück (Spaltenname -> Wert). Bei INSERT/UPDATE/DELETE ist die Liste leer.
         public static async Task<List<Dictionary<string, object?>>> AbfrageAsync(string sql, params object?[] args)
         {
+            if (Token.Trim() == "")
+            {
+                throw new Exception("db-token.txt fehlt oder ist leer (siehe README).");
+            }
+
             JsonArray argListe = new JsonArray();
             foreach (object? a in args)
             {
